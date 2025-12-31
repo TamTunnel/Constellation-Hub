@@ -3,7 +3,7 @@ Database models for Core Orbits service.
 Uses SQLAlchemy ORM for persistence.
 """
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, JSON, Enum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 import enum
 
