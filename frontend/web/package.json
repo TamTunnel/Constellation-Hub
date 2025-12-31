@@ -13,8 +13,7 @@
         "test:coverage": "vitest --coverage"
     },
     "dependencies": {
-        "@cesium/engine": "^7.2.0",
-        "cesium": "^1.114.0",
+        "cesium": "^1.123.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.21.0",

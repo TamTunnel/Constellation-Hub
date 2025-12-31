@@ -11,7 +11,7 @@ This module wraps the sgp4 library to provide position and velocity
 at any given time.
 """
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Tuple
 import math
 
 from sgp4.api import Satrec, jday
@@ -187,7 +187,7 @@ class OrbitPropagator:
             Tuple of (latitude_deg, longitude_deg, altitude_km)
         """
         # Earth rotation rate (rad/s)
-        omega_earth = 7.2921150e-5
+        _omega_earth = 7.2921150e-5  # noqa: F841 - kept for documentation
         
         # Calculate Greenwich Mean Sidereal Time (GMST)
         # This is a simplified calculation
