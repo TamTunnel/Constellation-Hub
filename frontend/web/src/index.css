@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+:root {
+    --color-space-900: #0a0a1a;
+    --color-cosmic-500: #6366f1;
+    --color-aurora-500: #10b981;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: var(--color-space-900);
+    color: white;
+    min-height: 100vh;
+}
+
+/* CesiumJS container styles */
+.cesium-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.cesium-widget-credits {
+    display: none !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.5);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.8);
+}
+
+/* Glassmorphism utilities */
+.glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-dark {
+    background: rgba(10, 10, 26, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Glow effects */
+.glow-cosmic {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+.glow-aurora {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+/* Button styles */
+.btn-primary {
+    @apply bg-cosmic-500 hover:bg-cosmic-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200;
+}
+
+.btn-secondary {
+    @apply bg-space-600 hover:bg-space-500 text-white font-medium py-2 px-4 rounded-lg border border-white/10 transition-all duration-200;
+}
+
+/* Card styles */
+.card {
+    @apply bg-space-800 rounded-xl border border-white/10 p-4;
+}
+
+.card-glass {
+    @apply glass rounded-xl p-4;
+}
+
+/* Status indicators */
+.status-healthy {
+    @apply bg-aurora-500 animate-pulse-slow;
+}
+
+.status-warning {
+    @apply bg-yellow-500 animate-pulse;
+}
+
+.status-critical {
+    @apply bg-red-500 animate-pulse;
+}
+
+/* Table styles */
+.table-row {
+    @apply border-b border-white/5 hover:bg-white/5 transition-colors;
+}
+
+/* Input styles */
+.input {
+    @apply bg-space-700 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cosmic-500 focus:border-transparent;
+}
+
+/* Animations */
+@keyframes satellite-orbit {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-orbit {
+    animation: satellite-orbit 20s linear infinite;
+}

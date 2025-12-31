@@ -1,0 +1,184 @@
+name: CI - Backend
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/ci-backend.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+
+jobs:
+  test-core-orbits:
+    name: Test Core Orbits Service
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/core-orbits/requirements.txt
+      
+      - name: Install dependencies
+        run: |
+          cd backend/core-orbits
+          pip install -r requirements.txt
+      
+      - name: Run linting
+        run: |
+          cd backend/core-orbits
+          pip install ruff
+          ruff check .
+      
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test_db
+        run: |
+          cd backend/core-orbits
+          pytest -v --tb=short
+
+  test-routing:
+    name: Test Routing Service
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/routing/requirements.txt
+      
+      - name: Install dependencies
+        run: |
+          cd backend/routing
+          pip install -r requirements.txt
+      
+      - name: Run linting
+        run: |
+          cd backend/routing
+          pip install ruff
+          ruff check .
+      
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test_db
+        run: |
+          cd backend/routing
+          pytest -v --tb=short
+
+  test-ground-scheduler:
+    name: Test Ground Scheduler Service
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/ground-scheduler/requirements.txt
+      
+      - name: Install dependencies
+        run: |
+          cd backend/ground-scheduler
+          pip install -r requirements.txt
+      
+      - name: Run linting
+        run: |
+          cd backend/ground-scheduler
+          pip install ruff
+          ruff check .
+      
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test_db
+        run: |
+          cd backend/ground-scheduler
+          pytest -v --tb=short
+
+  test-ai-agents:
+    name: Test AI Agents Service
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/ai-agents/requirements.txt
+      
+      - name: Install dependencies
+        run: |
+          cd backend/ai-agents
+          pip install -r requirements.txt
+      
+      - name: Run linting
+        run: |
+          cd backend/ai-agents
+          pip install ruff
+          ruff check .
+      
+      - name: Run tests
+        run: |
+          cd backend/ai-agents
+          pytest -v --tb=short

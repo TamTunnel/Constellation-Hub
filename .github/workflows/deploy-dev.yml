@@ -1,0 +1,53 @@
+name: Deploy to Dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      
+      # NOTE: This is a template. Configure your Kubernetes cluster connection.
+      # - name: Configure Kubernetes
+      #   run: |
+      #     echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
+      #     export KUBECONFIG=kubeconfig
+      
+      - name: Deploy with Docker Compose (Dev)
+        if: github.event.inputs.environment == 'dev'
+        run: |
+          echo "To deploy to dev environment:"
+          echo "1. SSH to your dev server"
+          echo "2. cd to constellation-hub/infra/docker"
+          echo "3. Run: docker-compose up -d"
+          echo ""
+          echo "This workflow is a template for future automation."
+      
+      - name: Deploy with Kubernetes (Staging)
+        if: github.event.inputs.environment == 'staging'
+        run: |
+          echo "To deploy to staging environment:"
+          echo "1. Configure KUBE_CONFIG secret"
+          echo "2. Apply manifests from infra/k8s/"
+          echo "3. kubectl apply -f infra/k8s/"
+          echo ""
+          echo "This workflow is a template for future automation."

@@ -1,0 +1,18 @@
+# AI Agents Service Dependencies
+fastapi>=0.109.0
+uvicorn[standard]>=0.25.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+python-dotenv>=1.0.0
+httpx>=0.25.2
+
+# ML (optional, for future MLScheduler)
+# scikit-learn>=1.3.0
+# numpy>=1.26.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.23.0
+
+# Linting
+ruff>=0.1.9
