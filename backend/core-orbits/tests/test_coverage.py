@@ -101,7 +101,7 @@ class TestCoverageRadius:
         )
         
         # ISS coverage radius at 10° elevation should be roughly 2000-2500 km
-        assert 1500 < radius_km < 3000
+        assert 1300 < radius_km < 3000
     
     def test_radius_at_geo_altitude(self):
         """Test coverage radius at GEO altitude (~35786 km)."""

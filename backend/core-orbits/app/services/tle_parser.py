@@ -178,11 +178,8 @@ class TLEParser:
             year += 1900
         
         # Convert day of year to datetime
-        jan1 = datetime(year, 1, 1, tzinfo=timezone.utc)
-        epoch = jan1 + (day - 1) * 86400 * 1e-6  # Convert to timedelta
-        
-        # Actually, let's do this properly
         from datetime import timedelta
+        jan1 = datetime(year, 1, 1, tzinfo=timezone.utc)
         epoch = jan1 + timedelta(days=day - 1)
         
         return epoch

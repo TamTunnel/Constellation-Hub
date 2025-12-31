@@ -139,3 +139,109 @@ class VisibilityCalculator:
             "Accurate TLE-based visibility computation requires integration "
             "with core-orbits service. Use compute_passes_simplified for now."
         )
+
+    def compute_passes(
+        self,
+        satellite: Dict[str, Any],
+        station: Dict[str, Any],
+        start_time: datetime,
+        end_time: datetime
+    ) -> List[Dict[str, Any]]:
+        """
+        Unified interface to compute passes.
+        """
+        min_elevation = station.get('min_elevation_deg', 10.0)
+
+        # If TLE provided, could use accurate calculation (when implemented)
+        # For now, always use simplified
+        passes = self.compute_passes_simplified(
+            satellite_id=satellite.get('id', 1),
+            station_lat=station.get('latitude', 0),
+            station_lon=station.get('longitude', 0),
+            start_time=start_time,
+            end_time=end_time,
+            min_elevation_deg=min_elevation
+        )
+
+        # Add identifiers
+        for p in passes:
+            p['satellite_id'] = satellite.get('id')
+            p['station_id'] = station.get('id')
+            p['max_elevation'] = p['max_elevation_deg'] # Alias for compatibility
+
+        return passes
+
+    def _compute_elevation(
+        self,
+        sat_lat: float,
+        sat_lon: float,
+        sat_alt_km: float,
+        obs_lat: float,
+        obs_lon: float
+    ) -> float:
+        """
+        Compute elevation angle of satellite from observer.
+        Simplified approximation.
+        """
+        import math
+
+        # Earth radius
+        R = 6371.0
+
+        # Convert to radians
+        lat1, lon1 = math.radians(obs_lat), math.radians(obs_lon)
+        lat2, lon2 = math.radians(sat_lat), math.radians(sat_lon)
+
+        # Central angle
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+
+        a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+
+        # Distance to sub-satellite point
+        ground_dist = R * c
+
+        # Elevation approximation
+        # tan(el) = (cos(c) - R/(R+h)) / sin(c)
+        h = sat_alt_km
+
+        if c < 0.001: # Overhead
+            return 90.0
+
+        cos_c = math.cos(c)
+        sin_c = math.sin(c)
+
+        val = (cos_c - R/(R+h)) / sin_c
+        elev = math.degrees(math.atan(val))
+
+        return elev
+
+    def filter_passes(
+        self,
+        passes: List[Dict[str, Any]],
+        min_elevation: float = None,
+        min_duration_seconds: float = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Filter passes by criteria.
+        """
+        filtered = []
+        for p in passes:
+            if min_elevation is not None:
+                # Check both keys for compatibility
+                elev = p.get('max_elevation', p.get('max_elevation_deg', 0))
+                if elev < min_elevation:
+                    continue
+
+            if min_duration_seconds is not None:
+                duration = p.get('duration_seconds', 0)
+                if not duration and 'aos' in p and 'los' in p:
+                    duration = (p['los'] - p['aos']).total_seconds()
+
+                if duration < min_duration_seconds:
+                    continue
+
+            filtered.append(p)
+
+        return filtered

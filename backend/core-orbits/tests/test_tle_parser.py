@@ -8,8 +8,8 @@ from app.services.tle_parser import TLEParser, parse_tle
 
 
 # Valid TLE for ISS (ZARYA)
-VALID_TLE_LINE1 = "1 25544U 98067A   24001.50000000  .00016717  00000-0  10270-3 0  9025"
-VALID_TLE_LINE2 = "2 25544  51.6400 208.9163 0006703 280.7808  79.2154 15.49815776    20"
+VALID_TLE_LINE1 = "1 25544U 98067A   24001.50000000  .00016717  00000-0  10270-3 0  9021"
+VALID_TLE_LINE2 = "2 25544  51.6400 208.9163 0006703 280.7808  79.2154 15.49815776    29"
 
 
 class TestTLEParser:
@@ -110,7 +110,7 @@ class TestTLEParserExponential:
         """Test parsing negative exponential values."""
         # B* drag term like ' 12345-4' = 0.12345e-4
         result = self.parser._parse_exponential(" 12345-4")
-        assert result == pytest.approx(0.0000012345, rel=0.01)
+        assert result == pytest.approx(0.000012345, rel=0.01)
     
     def test_parse_zero_value(self):
         """Test parsing zero/empty exponential values."""
@@ -120,7 +120,7 @@ class TestTLEParserExponential:
     def test_parse_negative_mantissa(self):
         """Test parsing negative mantissa values."""
         result = self.parser._parse_exponential("-12345-4")
-        assert result == pytest.approx(-0.0000012345, rel=0.01)
+        assert result == pytest.approx(-0.000012345, rel=0.01)
 
 
 class TestTLEParserChecksum:

@@ -122,6 +122,8 @@ class GraphBuilder:
         for link in links:
             # Handle both ORM objects and dictionaries
             if hasattr(link, 'source_type'):
+                if hasattr(link, 'is_active') and not link.is_active:
+                    continue
                 source_type = link.source_type
                 source_id = link.source_id
                 target_type = link.target_type
@@ -130,6 +132,8 @@ class GraphBuilder:
                 cost = link.cost or 1.0
                 bandwidth = link.bandwidth_mbps
             else:
+                if 'is_active' in link and not link['is_active']:
+                    continue
                 source_type = link['source_type']
                 source_id = link['source_id']
                 target_type = link['target_type']

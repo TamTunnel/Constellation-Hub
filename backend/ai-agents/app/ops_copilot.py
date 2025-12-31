@@ -53,6 +53,20 @@ class LLMClient(ABC):
         """
         pass
 
+    @classmethod
+    def create(cls, provider: str) -> 'LLMClient':
+        """Factory method to create LLMClient instances."""
+        if provider == "mock":
+            return MockLLMClient()
+        elif provider == "openai":
+            return OpenAIClient()
+        elif provider == "anthropic":
+            return AnthropicClient()
+        elif provider == "local":
+            return LocalLLMClient()
+        else:
+            raise ValueError(f"Unknown provider: {provider}")
+
 
 class MockLLMClient(LLMClient):
     """
@@ -121,6 +135,17 @@ class MockLLMClient(LLMClient):
             'affected_stations': list(affected_stations),
             'confidence': confidence
         }
+
+    def generate(self, prompt: str) -> str:
+        """Mock simple generation."""
+        return "Mock response"
+
+    def analyze_events(self, events: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Alias for analyze() to match test expectations in TestMockLLMClient.
+        The test calls analyze_events(events) without context/focus_areas.
+        """
+        return self.analyze(events, {}, [])
     
     def _generate_summary(
         self,
@@ -413,8 +438,13 @@ class OpsCoPilot:
     to provide actionable insights.
     """
     
-    def __init__(self, llm_client: Optional[LLMClient] = None):
-        self.llm_client = llm_client or get_llm_client()
+    def __init__(self, llm_client: Optional[LLMClient] = None, llm_provider: str = None):
+        if llm_client:
+            self.llm_client = llm_client
+        elif llm_provider:
+            self.llm_client = LLMClient.create(llm_provider)
+        else:
+            self.llm_client = get_llm_client()
     
     def analyze(
         self,
