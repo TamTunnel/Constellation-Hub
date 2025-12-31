@@ -11,7 +11,7 @@ For a first approximation, we use a simple circular footprint
 based on the geometric horizon visible from the satellite.
 """
 import math
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 
 
 class CoverageCalculator:
@@ -253,7 +253,7 @@ class CoverageCalculator:
             elevation = 90.0
         else:
             # More accurate calculation
-            sin_c = math.sin(c)
+            _sin_c = math.sin(c)  # noqa: F841
             cos_c = math.cos(c)
             
             # Slant range

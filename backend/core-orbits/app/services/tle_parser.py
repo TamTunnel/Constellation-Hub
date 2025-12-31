@@ -31,7 +31,7 @@ Line 2:
   - Column 69: Checksum
 """
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import re
 
 
