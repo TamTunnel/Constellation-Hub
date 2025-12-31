@@ -8,7 +8,6 @@ For the MVP, we use a simplified simulation.
 from datetime import datetime, timedelta
 from typing import List, Dict, Any
 import random
-import math
 
 
 class VisibilityCalculator:

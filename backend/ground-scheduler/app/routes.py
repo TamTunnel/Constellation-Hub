@@ -34,7 +34,7 @@ async def list_ground_stations(
     """List all ground stations."""
     query = select(GroundStationORM)
     if is_active is not None:
-        query = query.where(GroundStationORM.is_active == is_active)
+        query = query.where(GroundStationORM.is_active.is_(is_active))
     query = query.offset(skip).limit(limit)
     
     result = await db.execute(query)
@@ -114,7 +114,7 @@ async def list_passes(
     if end_time:
         conditions.append(PassORM.los <= end_time)
     if is_scheduled is not None:
-        conditions.append(PassORM.is_scheduled == is_scheduled)
+        conditions.append(PassORM.is_scheduled.is_(is_scheduled))
     
     if conditions:
         query = query.where(and_(*conditions))
@@ -158,13 +158,13 @@ async def compute_passes(
             select(GroundStationORM).where(
                 and_(
                     GroundStationORM.id.in_(request.station_ids),
-                    GroundStationORM.is_active == True
+                    GroundStationORM.is_active.is_(True)
                 )
             )
         )
     else:
         stations_result = await db.execute(
-            select(GroundStationORM).where(GroundStationORM.is_active == True)
+            select(GroundStationORM).where(GroundStationORM.is_active.is_(True))
         )
     stations = stations_result.scalars().all()
     
@@ -226,7 +226,7 @@ async def list_schedules(
     """List all schedules."""
     query = select(ScheduleORM)
     if is_active is not None:
-        query = query.where(ScheduleORM.is_active == is_active)
+        query = query.where(ScheduleORM.is_active.is_(is_active))
     query = query.order_by(ScheduleORM.created_at.desc())
     
     result = await db.execute(query)
@@ -240,7 +240,7 @@ async def get_current_schedule(db: AsyncSession = Depends(get_db)):
     """Get the current active schedule."""
     result = await db.execute(
         select(ScheduleORM)
-        .where(ScheduleORM.is_active == True)
+        .where(ScheduleORM.is_active.is_(True))
         .order_by(ScheduleORM.created_at.desc())
         .limit(1)
     )
@@ -270,7 +270,7 @@ async def generate_schedule(
         and_(
             PassORM.aos >= request.start_time,
             PassORM.los <= request.end_time,
-            PassORM.is_scheduled == False
+            PassORM.is_scheduled.is_(False)
         )
     )
     

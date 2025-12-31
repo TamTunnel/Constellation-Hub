@@ -3,8 +3,6 @@ API routes for AI Agents service.
 """
 from datetime import datetime, timezone
 import time
-import uuid
-from typing import List
 from fastapi import APIRouter, HTTPException
 
 from .schemas import (

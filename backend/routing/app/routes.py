@@ -37,7 +37,7 @@ async def list_links(
     if link_type:
         query = query.where(LinkORM.link_type == link_type)
     if is_active is not None:
-        query = query.where(LinkORM.is_active == is_active)
+        query = query.where(LinkORM.is_active.is_(is_active))
     
     query = query.offset(skip).limit(limit)
     result = await db.execute(query)
@@ -143,7 +143,7 @@ async def compute_path(
     """
     # Get all active links
     result = await db.execute(
-        select(LinkORM).where(LinkORM.is_active == True)
+        select(LinkORM).where(LinkORM.is_active.is_(True))
     )
     links = result.scalars().all()
     
@@ -176,7 +176,7 @@ async def compute_path(
     else:
         # Try to get default policy
         result = await db.execute(
-            select(PolicyORM).where(PolicyORM.is_default == True)
+            select(PolicyORM).where(PolicyORM.is_default.is_(True))
         )
         policy = result.scalar_one_or_none()
     
