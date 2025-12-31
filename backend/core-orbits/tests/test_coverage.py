@@ -4,7 +4,6 @@ Unit tests for Coverage Calculator.
 Tests footprint computation and visibility calculations.
 """
 import pytest
-import math
 from app.services.coverage import CoverageCalculator
 
 

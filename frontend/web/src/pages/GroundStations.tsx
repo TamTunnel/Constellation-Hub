@@ -1,4 +1,4 @@
-import { Radio, Plus, MapPin, Signal } from 'lucide-react';
+import { Radio, Plus, MapPin } from 'lucide-react';
 
 const mockStations = [
     { id: 1, name: 'GS-Alpha', location: 'New York, USA', lat: 40.7, lon: -74.0, status: 'online', capabilities: ['S-band', 'X-band'] },

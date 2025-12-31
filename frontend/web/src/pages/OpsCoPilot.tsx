@@ -1,4 +1,4 @@
-import { Bot, Send, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Bot, Send, CheckCircle, XCircle } from 'lucide-react';
 
 const mockAnalysis = {
     summary: "Analysis of 5 events over the review period. Pattern detected: 2 missed passes may indicate ground station issues.",
@@ -53,8 +53,8 @@ export default function OpsCoPilot() {
                             <div key={action.id} className="p-3 bg-space-700 rounded-lg">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className={`px-2 py-1 rounded text-xs ${action.priority === 'critical' ? 'bg-red-500/20 text-red-400' :
-                                            action.priority === 'high' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                'bg-cosmic-500/20 text-cosmic-400'
+                                        action.priority === 'high' ? 'bg-yellow-500/20 text-yellow-400' :
+                                            'bg-cosmic-500/20 text-cosmic-400'
                                         }`}>
                                         {action.priority}
                                     </span>

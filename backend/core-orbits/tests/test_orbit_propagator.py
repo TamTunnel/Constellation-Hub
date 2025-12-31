@@ -4,7 +4,7 @@ Unit tests for Orbit Propagator.
 Tests SGP4-based orbit propagation and coordinate transformations.
 """
 import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from app.services.orbit_propagator import OrbitPropagator
 
 
