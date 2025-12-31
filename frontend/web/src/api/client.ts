@@ -29,8 +29,8 @@ export const api = {
     getSchedule: () => schedulerApi.get('/schedule'),
 
     // AI Agents
-    optimizeSchedule: (data: any) => aiAgentsApi.post('/ai/pass-scheduler/optimize', data),
-    analyzeEvents: (data: any) => aiAgentsApi.post('/ai/ops-copilot/analyze', data),
+    optimizeSchedule: (data: Record<string, unknown>) => aiAgentsApi.post('/ai/pass-scheduler/optimize', data),
+    analyzeEvents: (data: Record<string, unknown>) => aiAgentsApi.post('/ai/ops-copilot/analyze', data),
 };
 
 export { coreOrbitsApi, routingApi, schedulerApi, aiAgentsApi };

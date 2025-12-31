@@ -3,7 +3,7 @@ API routes for Core Orbits service.
 Handles constellation and satellite endpoints.
 """
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func

@@ -11,7 +11,7 @@ For a first approximation, we use a simple circular footprint
 based on the geometric horizon visible from the satellite.
 """
 import math
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 
 
 class CoverageCalculator:
