@@ -138,33 +138,56 @@ class TLEParser:
             raise ValueError("Line 2 checksum invalid")
     
     def _verify_checksum(self, line: str) -> bool:
-        """Verify TLE line checksum."""
+        """
+        Verify TLE line checksum.
+
+        Checksum algorithm:
+        - Sum all digits
+        - Minus signs count as 1
+        - All other non-digit characters count as 0
+        - Take modulo 10 of the sum
+        - Compare with the last character of the line
+        """
         checksum = 0
         for char in line[:-1]:
             if char.isdigit():
                 checksum += int(char)
             elif char == '-':
                 checksum += 1
-        checksum = checksum % 10
+            # All other characters add 0
+
+        checksum %= 10
         
         try:
-            return checksum == int(line[-1])
+            expected = int(line[-1])
+            return checksum == expected
         except ValueError:
             return False
     
     def _parse_exponential(self, value: str) -> float:
-        """Parse TLE exponential format (e.g., ' 12345-4' -> 0.12345e-4)."""
+        """
+        Parse TLE exponential format.
+
+        Format example: ' 12345-4' -> 0.12345 * 10^-4
+        The implied decimal point is before the first digit of the mantissa.
+        """
         value = value.strip()
         if not value or value == '00000-0':
             return 0.0
         
-        # Handle format like ' 12345-4' or '-12345-4'
-        match = re.match(r'([+-]?)(\d+)([+-])(\d)', value)
+        # Handle format like ' 12345-4' or '-12345-4' or ' 12345+4'
+        # The TLE spec says the sign of the exponent is always present (+ or -)
+        match = re.match(r'([+-]?)(\d+)([+-])(\d+)', value)
         if match:
             sign = -1 if match.group(1) == '-' else 1
-            mantissa = float('0.' + match.group(2))
+
+            # The mantissa is assumed to be 0.xxxxx
+            mantissa_str = match.group(2)
+            mantissa = float('0.' + mantissa_str)
+
             exp_sign = -1 if match.group(3) == '-' else 1
             exponent = int(match.group(4)) * exp_sign
+
             return sign * mantissa * (10 ** exponent)
         
         return 0.0
@@ -179,9 +202,7 @@ class TLEParser:
         
         # Convert day of year to datetime
         jan1 = datetime(year, 1, 1, tzinfo=timezone.utc)
-        epoch = jan1 + (day - 1) * 86400 * 1e-6  # Convert to timedelta
         
-        # Actually, let's do this properly
         from datetime import timedelta
         epoch = jan1 + timedelta(days=day - 1)
         
