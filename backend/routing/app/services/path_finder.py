@@ -8,6 +8,7 @@ from typing import Dict, List, Any, Optional
 import heapq
 
 from .graph_builder import Graph
+from .models import RoutingPolicy
 
 
 class PathFinder:
