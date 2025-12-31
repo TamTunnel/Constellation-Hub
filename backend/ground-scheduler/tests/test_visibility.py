@@ -3,7 +3,6 @@ Unit tests for Visibility Calculator.
 
 Tests satellite visibility window computation.
 """
-import pytest
 from datetime import datetime, timezone, timedelta
 from app.services.visibility import VisibilityCalculator
 
