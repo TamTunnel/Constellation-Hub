@@ -2,20 +2,38 @@
 FastAPI application for the Core Orbits service.
 Provides APIs for satellite positions, constellations, and coverage.
 """
-import logging
+import sys
+import uuid
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import router
-from .db import init_db
+# Add common module to path
+sys.path.insert(0, str(__file__).replace('/core-orbits/app/main.py', ''))
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+from .routes import router
+from .db import init_db, get_db
+
+# Import from common module
+try:
+    from common.logger import get_logger, set_request_id
+    from common.metrics import setup_metrics
+    from common.health import create_health_router_with_db
+    from common.config import get_settings
+except ImportError:
+    # Fallback for standalone testing
+    import logging
+    def get_logger(name): return logging.getLogger(name)
+    def set_request_id(x): pass
+    def setup_metrics(app, name): pass
+    def create_health_router_with_db(dep): 
+        from fastapi import APIRouter
+        return APIRouter()
+    class get_settings:
+        auth_disabled = True
+
+SERVICE_NAME = "core-orbits"
+logger = get_logger(SERVICE_NAME)
 
 
 @asynccontextmanager
@@ -44,16 +62,51 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routes
+
+# Request ID middleware for logging
+@app.middleware("http")
+async def request_id_middleware(request: Request, call_next):
+    request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+    set_request_id(request_id)
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
+
+
+# Set up Prometheus metrics
+setup_metrics(app, SERVICE_NAME)
+
+# Include health check routes (no auth required)
+health_router = create_health_router_with_db(get_db)
+app.include_router(health_router)
+
+# Include main routes
 app.include_router(router)
 
+# Mount auth routes
+try:
+    from common.auth_routes import router as auth_router
+    # Create a new router that includes the DB dependency
+    from fastapi import APIRouter, Depends
+    from sqlalchemy.ext.asyncio import AsyncSession
+    
+    mounted_auth_router = APIRouter()
+    
+    # We need to wrap auth routes to inject DB dependency
+    # This is done in the route handlers themselves
+    app.include_router(auth_router)
+except ImportError:
+    logger.warning("Auth routes not available - running without auth endpoints")
 
+
+# Legacy health endpoint (kept for backward compatibility)
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy", "service": "core-orbits"}
+    """Health check endpoint (legacy)."""
+    return {"status": "healthy", "service": SERVICE_NAME}
 
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
