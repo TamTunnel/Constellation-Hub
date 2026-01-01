@@ -121,7 +121,21 @@ Constellation Hub is built as a set of cooperating microservices:
 | **Ground Scheduler** | Manages ground stations and generates pass schedules |
 | **AI Agents** | Provides intelligent schedule optimization and operational assistance |
 
+### Production Features
+
+| Feature | Description |
+|---------|-------------|
+| **JWT Authentication** | Role-based access control (viewer, operator, admin) |
+| **API Key Support** | Service-to-service authentication |
+| **Prometheus Metrics** | Request count, latency, error tracking at `/metrics` |
+| **Structured Logging** | JSON-formatted logs with request ID tracing |
+| **Health Probes** | Kubernetes-compatible `/healthz` and `/readyz` endpoints |
+| **Database Migrations** | Alembic for schema versioning |
+| **TLE Ingestion** | Automated satellite data from CelesTrak |
+| **3D Globe** | CesiumJS visualization with OpenStreetMap tiles |
+
 ---
+
 
 ## Quickstart
 
@@ -165,10 +179,13 @@ Each service exposes interactive API documentation:
 | [Concept of Operations](docs/product/conops.md) | Typical missions, roles, and workflows |
 | [API Reference](docs/api/backend.md) | REST API endpoints and examples |
 | [Local Development](docs/ops/local_dev.md) | Setting up a dev environment |
+| [Observability Guide](docs/ops/observability.md) | Logging, metrics, and health probes |
+| [TLE Feeds](docs/product/tle_feeds.md) | Satellite TLE data ingestion |
 | [CI/CD Guide](docs/ops/ci_cd.md) | Build and deployment pipelines |
 | [Security Overview](docs/security/data_security_overview.md) | Data handling and protection |
 | [Compliance Guide](docs/security/compliance_and_assurance.md) | Regulatory alignment roadmap |
 | [AI Governance](docs/product/ai_risk_and_governance.md) | AI safety and oversight practices |
+
 
 ---
 
