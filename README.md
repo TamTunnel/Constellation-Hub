@@ -7,6 +7,12 @@
 
 ---
 
+## One-line summary (Tagline)
+Open‑source satellite constellation “brain” for fleet visualization, pass scheduling, data routing, and AI‑assisted operations.
+
+- Simple analogy:
+Think of Constellation Hub as an air‑traffic control system and network router combined, but for satellites instead of airplanes. It gives operators one place to see every satellite, plan when they talk to the ground, and let AI suggest smarter ways to move data across the fleet
+
 ## The Problem
 
 Operating a modern satellite constellation is hard—and it's only getting harder.
