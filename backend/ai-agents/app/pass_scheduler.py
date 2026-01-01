@@ -7,11 +7,9 @@ Uses a Strategy Pattern to allow plugging in different optimization algorithms:
 
 The strategy is selected via the SCHEDULER_STRATEGY environment variable.
 """
-import os
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Dict, List, Set, Any, Optional
-import uuid
 
 
 class OptimizationResult:

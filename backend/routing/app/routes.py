@@ -44,7 +44,7 @@ async def list_links(
     links = result.scalars().all()
     
     return LinkList(
-        data=[_link_to_response(l) for l in links],
+        data=[_link_to_response(link) for link in links],
         total=len(links)
     )
 

@@ -4,7 +4,8 @@ Unit tests for Path Finder.
 Tests Dijkstra's algorithm and policy-based path finding.
 """
 from app.services.graph_builder import Graph
-from app.services.path_finder import PathFinder, RoutingPolicy
+from app.services.path_finder import PathFinder
+from app.services.models import RoutingPolicy
 
 
 class TestPathFinder:

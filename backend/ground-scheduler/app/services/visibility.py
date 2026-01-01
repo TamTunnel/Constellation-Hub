@@ -200,7 +200,6 @@ class VisibilityCalculator:
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
 
         # Distance to sub-satellite point
-        ground_dist = R * c
 
         # Elevation approximation
         # tan(el) = (cos(c) - R/(R+h)) / sin(c)

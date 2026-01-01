@@ -2,7 +2,7 @@
 Database models for Routing service.
 """
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, JSON, Enum
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, JSON
 import enum
 
 from .db import Base

@@ -3,7 +3,6 @@ Unit tests for Graph Builder.
 
 Tests network graph construction from link data.
 """
-import pytest
 from app.services.graph_builder import Graph, GraphBuilder
 
 
