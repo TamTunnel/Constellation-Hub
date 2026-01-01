@@ -83,6 +83,14 @@ app.include_router(health_router)
 # Include main routes
 app.include_router(router)
 
+# Include TLE routes
+try:
+    from .tle_routes import router as tle_router
+    app.include_router(tle_router)
+    logger.info("TLE routes loaded")
+except ImportError as e:
+    logger.warning(f"TLE routes not available: {e}")
+
 # Mount auth routes
 try:
     from common.auth_routes import router as auth_router
@@ -97,6 +105,7 @@ try:
     app.include_router(auth_router)
 except ImportError:
     logger.warning("Auth routes not available - running without auth endpoints")
+
 
 
 # Legacy health endpoint (kept for backward compatibility)
