@@ -7,7 +7,8 @@ import {
     Calendar,
     Bot,
     Settings,
-    Globe
+    Globe,
+    Database
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -20,6 +21,7 @@ const navItems = [
     { path: '/ground-stations', label: 'Ground Stations', icon: Radio },
     { path: '/scheduling', label: 'Scheduling', icon: Calendar },
     { path: '/ops-copilot', label: 'Ops Co-Pilot', icon: Bot },
+    { path: '/tle-admin', label: 'TLE Feeds', icon: Database },
 ];
 
 export default function Layout({ children }: LayoutProps) {
