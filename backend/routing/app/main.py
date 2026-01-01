@@ -2,20 +2,34 @@
 FastAPI application for the Routing service.
 Provides APIs for link management and path computation.
 """
-import logging
+import sys
+import uuid
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import router
-from .db import init_db
+# Add common module to path
+sys.path.insert(0, str(__file__).replace('/routing/app/main.py', ''))
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+from .routes import router
+from .db import init_db, get_db
+
+# Import from common module
+try:
+    from common.logger import get_logger, set_request_id
+    from common.metrics import setup_metrics
+    from common.health import create_health_router_with_db
+except ImportError:
+    import logging
+    def get_logger(name): return logging.getLogger(name)
+    def set_request_id(x): pass
+    def setup_metrics(app, name): pass
+    def create_health_router_with_db(dep):
+        from fastapi import APIRouter
+        return APIRouter()
+
+SERVICE_NAME = "routing"
+logger = get_logger(SERVICE_NAME)
 
 
 @asynccontextmanager
@@ -44,14 +58,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routes
+
+# Request ID middleware
+@app.middleware("http")
+async def request_id_middleware(request: Request, call_next):
+    request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+    set_request_id(request_id)
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
+
+
+# Set up Prometheus metrics
+setup_metrics(app, SERVICE_NAME)
+
+# Include health check routes
+health_router = create_health_router_with_db(get_db)
+app.include_router(health_router)
+
+# Include main routes
 app.include_router(router)
 
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy", "service": "routing"}
+    """Health check endpoint (legacy)."""
+    return {"status": "healthy", "service": SERVICE_NAME}
 
 
 if __name__ == "__main__":

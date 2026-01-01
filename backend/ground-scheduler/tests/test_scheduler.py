@@ -5,107 +5,24 @@ Tests baseline schedule generation and optimization.
 """
 import pytest
 from datetime import datetime, timezone, timedelta
-from app.services.scheduler import BaseScheduler, ScheduleEntry
+from app.services.scheduler import BaselineScheduler
 
-
-class TestScheduleEntry:
-    """Test cases for ScheduleEntry data class."""
-    
-    def test_create_entry(self):
-        """Test creating a schedule entry."""
-        aos = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
-        los = datetime(2024, 1, 1, 12, 15, 0, tzinfo=timezone.utc)
-        
-        entry = ScheduleEntry(
-            pass_id=1,
-            satellite_id=1,
-            station_id=1,
-            aos=aos,
-            los=los,
-            max_elevation=75.0,
-            priority=1
-        )
-        
-        assert entry.pass_id == 1
-        assert entry.satellite_id == 1
-        assert entry.duration_seconds == 900  # 15 minutes
-    
-    def test_entry_duration_calculation(self):
-        """Test that duration is calculated correctly."""
-        aos = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
-        los = datetime(2024, 1, 1, 12, 10, 30, tzinfo=timezone.utc)
-        
-        entry = ScheduleEntry(
-            pass_id=1,
-            satellite_id=1,
-            station_id=1,
-            aos=aos,
-            los=los,
-            max_elevation=45.0,
-            priority=1
-        )
-        
-        assert entry.duration_seconds == 630  # 10 min 30 sec
-    
-    def test_entries_overlap_detection(self):
-        """Test detecting overlapping entries."""
-        base_time = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
-        
-        entry1 = ScheduleEntry(
-            pass_id=1, satellite_id=1, station_id=1,
-            aos=base_time,
-            los=base_time + timedelta(minutes=15),
-            max_elevation=45.0, priority=1
-        )
-        
-        entry2 = ScheduleEntry(
-            pass_id=2, satellite_id=2, station_id=1,
-            aos=base_time + timedelta(minutes=10),  # Overlaps
-            los=base_time + timedelta(minutes=25),
-            max_elevation=60.0, priority=1
-        )
-        
-        assert entry1.overlaps(entry2)
-        assert entry2.overlaps(entry1)
-    
-    def test_entries_no_overlap(self):
-        """Test non-overlapping entries."""
-        base_time = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
-        
-        entry1 = ScheduleEntry(
-            pass_id=1, satellite_id=1, station_id=1,
-            aos=base_time,
-            los=base_time + timedelta(minutes=15),
-            max_elevation=45.0, priority=1
-        )
-        
-        entry2 = ScheduleEntry(
-            pass_id=2, satellite_id=2, station_id=1,
-            aos=base_time + timedelta(minutes=20),  # After entry1
-            los=base_time + timedelta(minutes=35),
-            max_elevation=60.0, priority=1
-        )
-        
-        assert not entry1.overlaps(entry2)
-
-
-class TestBaseScheduler:
-    """Test cases for BaseScheduler."""
+class TestBaselineScheduler:
+    """Test cases for BaselineScheduler."""
     
     def setup_method(self):
-        self.scheduler = BaseScheduler()
+        self.scheduler = BaselineScheduler()
     
     def test_generate_empty_schedule(self):
         """Test generating schedule with no passes."""
-        schedule = self.scheduler.generate(
+        schedule_ids = self.scheduler.generate_baseline(
             passes=[],
-            stations=[],
-            start_time=datetime.now(timezone.utc),
-            end_time=datetime.now(timezone.utc) + timedelta(hours=24)
+            data_queues={},
+            station_costs={}
         )
         
-        assert schedule is not None
-        assert len(schedule.entries) == 0
+        assert schedule_ids is not None
+        assert len(schedule_ids) == 0
     
     def test_generate_single_pass(self):
         """Test scheduling a single pass."""
@@ -117,23 +34,18 @@ class TestBaseScheduler:
             "station_id": 1,
             "aos": base_time,
             "los": base_time + timedelta(minutes=10),
-            "max_elevation": 75.0
+            "max_elevation_deg": 75.0,
+            "duration_seconds": 600
         }]
         
-        stations = [{
-            "id": 1,
-            "name": "GS-Alpha",
-            "available": True
-        }]
-        
-        schedule = self.scheduler.generate(
+        schedule_ids = self.scheduler.generate_baseline(
             passes=passes,
-            stations=stations,
-            start_time=base_time - timedelta(hours=1),
-            end_time=base_time + timedelta(hours=1)
+            data_queues={},
+            station_costs={}
         )
         
-        assert len(schedule.entries) == 1
+        assert len(schedule_ids) == 1
+        assert 1 in schedule_ids
     
     def test_conflict_resolution(self):
         """Test that scheduler resolves conflicts."""
@@ -147,8 +59,9 @@ class TestBaseScheduler:
                 "station_id": 1,
                 "aos": base_time,
                 "los": base_time + timedelta(minutes=15),
-                "max_elevation": 75.0,
-                "priority": 1
+                "max_elevation_deg": 75.0,
+                "duration_seconds": 900,
+                "priority": "medium"
             },
             {
                 "id": 2,
@@ -156,22 +69,23 @@ class TestBaseScheduler:
                 "station_id": 1,
                 "aos": base_time + timedelta(minutes=5),  # Overlaps
                 "los": base_time + timedelta(minutes=20),
-                "max_elevation": 60.0,
-                "priority": 1
+                "max_elevation_deg": 60.0,
+                "duration_seconds": 900,
+                "priority": "medium"
             }
         ]
         
-        stations = [{"id": 1, "name": "GS-Alpha", "available": True}]
+        # id 1 has better elevation (75 vs 60), so should be picked
         
-        schedule = self.scheduler.generate(
+        schedule_ids = self.scheduler.generate_baseline(
             passes=passes,
-            stations=stations,
-            start_time=base_time - timedelta(hours=1),
-            end_time=base_time + timedelta(hours=1)
+            data_queues={},
+            station_costs={}
         )
         
         # Should schedule only one (higher elevation wins)
-        assert len(schedule.entries) == 1
+        assert len(schedule_ids) == 1
+        assert 1 in schedule_ids
     
     def test_priority_ordering(self):
         """Test that higher priority passes are preferred."""
@@ -184,8 +98,9 @@ class TestBaseScheduler:
                 "station_id": 1,
                 "aos": base_time,
                 "los": base_time + timedelta(minutes=15),
-                "max_elevation": 45.0,
-                "priority": 2  # Higher priority
+                "max_elevation_deg": 45.0,
+                "duration_seconds": 900,
+                "priority": "high"  # Higher priority
             },
             {
                 "id": 2,
@@ -193,31 +108,32 @@ class TestBaseScheduler:
                 "station_id": 1,
                 "aos": base_time + timedelta(minutes=5),
                 "los": base_time + timedelta(minutes=20),
-                "max_elevation": 80.0,  # Better elevation but lower priority
-                "priority": 1
+                "max_elevation_deg": 80.0,  # Better elevation but lower priority
+                "duration_seconds": 900,
+                "priority": "low"
             }
         ]
         
-        stations = [{"id": 1, "name": "GS-Alpha", "available": True}]
-        
-        schedule = self.scheduler.generate(
+        schedule_ids = self.scheduler.generate_baseline(
             passes=passes,
-            stations=stations,
-            start_time=base_time - timedelta(hours=1),
-            end_time=base_time + timedelta(hours=1),
-            prefer_priority=True
+            data_queues={},
+            station_costs={}
         )
         
-        # Should pick the higher priority pass
-        if len(schedule.entries) == 1:
-            assert schedule.entries[0].priority == 2
+        # Should pick the higher priority pass (id 1)
+        # Check scores:
+        # id 1: High priority (+25), Elev 45 (25 pts), Dur 15 (min 30 cap? No, 900/60*3 = 45 -> cap 30). Total ~ 30 (queue) + 25 (elev) + 30 (dur) + 25 (prio) = 110
+        # id 2: Low priority (-10), Elev 80 (44 pts), Dur 15 (30 pts). Total ~ 30 + 44 + 30 - 10 = 94
+
+        assert len(schedule_ids) == 1
+        assert 1 in schedule_ids
 
 
 class TestScheduleMetrics:
     """Test cases for schedule quality metrics."""
     
     def setup_method(self):
-        self.scheduler = BaseScheduler()
+        self.scheduler = BaselineScheduler()
     
     def test_contact_time_calculation(self):
         """Test total contact time is calculated correctly."""
@@ -228,27 +144,25 @@ class TestScheduleMetrics:
                 "id": 1, "satellite_id": 1, "station_id": 1,
                 "aos": base_time,
                 "los": base_time + timedelta(minutes=10),
-                "max_elevation": 75.0
+                "max_elevation_deg": 75.0,
+                "duration_seconds": 600
             },
             {
                 "id": 2, "satellite_id": 1, "station_id": 2,
                 "aos": base_time + timedelta(hours=1),
                 "los": base_time + timedelta(hours=1, minutes=15),
-                "max_elevation": 60.0
+                "max_elevation_deg": 60.0,
+                "duration_seconds": 900
             }
         ]
         
-        stations = [
-            {"id": 1, "name": "GS-Alpha", "available": True},
-            {"id": 2, "name": "GS-Beta", "available": True}
-        ]
+        selected_ids = {1, 2}
         
-        schedule = self.scheduler.generate(
+        metrics = self.scheduler.calculate_schedule_metrics(
             passes=passes,
-            stations=stations,
-            start_time=base_time - timedelta(hours=1),
-            end_time=base_time + timedelta(hours=2)
+            selected_ids=selected_ids,
+            data_queues={}
         )
         
         # Total contact time should be 10 + 15 = 25 minutes
-        assert schedule.total_contact_minutes == pytest.approx(25, abs=1)
+        assert metrics['total_contact_minutes'] == pytest.approx(25, abs=1)

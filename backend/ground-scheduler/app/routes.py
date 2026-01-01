@@ -1,7 +1,7 @@
 """
 API routes for Ground Scheduler service.
 """
-from datetime import datetime, timezone
+from datetime import datetime
 import time
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -13,7 +13,7 @@ from .models import GroundStationORM, PassORM, ScheduleORM, DataQueueORM
 from .schemas import (
     GroundStationCreate, GroundStationResponse, GroundStationList,
     PassResponse, PassList, PassComputeRequest, PassComputeResponse,
-    ScheduleCreate, ScheduleResponse, ScheduleGenerateRequest,
+    ScheduleResponse, ScheduleGenerateRequest,
     DataQueueUpdate, DataQueueResponse
 )
 from .services.visibility import VisibilityCalculator

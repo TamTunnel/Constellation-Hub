@@ -20,6 +20,113 @@ Access:
 - Ground Scheduler API: http://localhost:8003/docs
 - AI Agents API: http://localhost:8004/docs
 
+---
+
+## Authentication Setup
+
+### Development Mode (No Auth)
+
+For local development without authentication, set:
+
+```bash
+AUTH_DISABLED=true
+```
+
+All endpoints will be accessible without tokens.
+
+### Creating a Demo Admin User
+
+When the database is empty, use the bootstrap endpoint:
+
+```bash
+curl -X POST http://localhost:8001/auth/bootstrap \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "name": "Admin User",
+    "password": "securepassword123"
+  }'
+```
+
+This creates an admin user. The endpoint is disabled after the first user is created.
+
+### Logging In
+
+```bash
+curl -X POST http://localhost:8001/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "securepassword123"
+  }'
+```
+
+Response:
+```json
+{
+  "access_token": "eyJ...",
+  "refresh_token": "eyJ...",
+  "token_type": "bearer",
+  "expires_in": 3600
+}
+```
+
+### Using Tokens
+
+Include the access token in API requests:
+
+```bash
+curl http://localhost:8001/constellations \
+  -H "Authorization: Bearer eyJ..."
+```
+
+---
+
+## Database Migrations
+
+### Running Migrations
+
+Before starting services, run database migrations:
+
+```bash
+cd backend
+
+# Upgrade to latest schema
+python scripts/run_migrations.py upgrade head
+
+# Or just run without arguments (defaults to upgrade head)
+python scripts/run_migrations.py
+```
+
+### Migration Commands
+
+```bash
+# Show current database revision
+python scripts/run_migrations.py current
+
+# Show migration history
+python scripts/run_migrations.py history
+
+# Downgrade one step
+python scripts/run_migrations.py downgrade -1
+
+# Create a new migration
+python scripts/run_migrations.py revision -m "Add new_table"
+
+# Auto-generate migration from model changes
+python scripts/run_migrations.py revision -m "Add fields" --autogenerate
+```
+
+### Docker Compose with Migrations
+
+Migrations run automatically on container startup. To manually run:
+
+```bash
+docker-compose exec core-orbits python /app/scripts/run_migrations.py
+```
+
+---
+
 ## Backend Development
 
 ### Running a Single Service
@@ -55,6 +162,8 @@ docker run -d \
   postgres:15-alpine
 ```
 
+---
+
 ## Frontend Development
 
 ```bash
@@ -71,6 +180,8 @@ Access at http://localhost:3000
 npm run build
 ```
 
+---
+
 ## Environment Variables
 
 Create a `.env` file from `.env.example`:
@@ -79,7 +190,47 @@ Create a `.env` file from `.env.example`:
 cp .env.example .env
 ```
 
-Key variables:
-- `DATABASE_URL` - PostgreSQL connection string
-- `LLM_PROVIDER` - AI provider (mock, openai, anthropic)
-- `LLM_API_KEY` - API key for LLM provider
+### Core Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://...` |
+| `AUTH_DISABLED` | Disable auth for dev | `false` |
+| `JWT_SECRET_KEY` | Secret for JWT signing | (required in prod) |
+| `LLM_PROVIDER` | AI provider (mock, openai, anthropic) | `mock` |
+| `LLM_API_KEY` | API key for LLM provider | (optional) |
+| `LOG_FORMAT` | Log format (`json` or `text`) | `json` |
+| `METRICS_ENABLED` | Enable Prometheus metrics | `true` |
+
+See `.env.example` for the complete list.
+
+---
+
+## Health & Observability
+
+### Health Checks
+
+Each service exposes:
+- `/healthz` - Liveness probe (is the service running?)
+- `/readyz` - Readiness probe (is the DB connected?)
+- `/metrics` - Prometheus metrics
+
+### Viewing Logs
+
+With `LOG_FORMAT=text` for readable local logs:
+
+```bash
+docker-compose logs -f core-orbits
+```
+
+### Prometheus Metrics
+
+Access metrics at http://localhost:8001/metrics
+
+To run Prometheus locally:
+
+```bash
+docker run -d -p 9090:9090 \
+  -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml \
+  prom/prometheus
+```

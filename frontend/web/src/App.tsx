@@ -5,6 +5,7 @@ import Satellites from './pages/Satellites';
 import GroundStations from './pages/GroundStations';
 import Scheduling from './pages/Scheduling';
 import OpsCoPilot from './pages/OpsCoPilot';
+import TLEAdmin from './pages/TLEAdmin';
 
 function App() {
     return (
@@ -15,6 +16,7 @@ function App() {
                 <Route path="/ground-stations" element={<GroundStations />} />
                 <Route path="/scheduling" element={<Scheduling />} />
                 <Route path="/ops-copilot" element={<OpsCoPilot />} />
+                <Route path="/tle-admin" element={<TLEAdmin />} />
             </Routes>
         </Layout>
     );

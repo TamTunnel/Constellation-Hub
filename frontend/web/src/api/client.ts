@@ -33,4 +33,6 @@ export const api = {
     analyzeEvents: (data: Record<string, unknown>) => aiAgentsApi.post('/ai/ops-copilot/analyze', data),
 };
 
+// Export aliases for backward compatibility or new components
+export const coreOrbitsClient = coreOrbitsApi;
 export { coreOrbitsApi, routingApi, schedulerApi, aiAgentsApi };

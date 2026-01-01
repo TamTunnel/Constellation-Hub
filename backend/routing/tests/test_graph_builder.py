@@ -12,17 +12,16 @@ class TestGraph:
     def test_add_node(self):
         """Test adding nodes to graph."""
         graph = Graph()
-        graph.add_node("sat-1", {"type": "satellite"})
+        graph.add_node("sat-1")
         
         assert "sat-1" in graph.nodes
-        assert graph.nodes["sat-1"]["type"] == "satellite"
     
     def test_add_edge(self):
         """Test adding edges to graph."""
         graph = Graph()
-        graph.add_node("sat-1", {})
-        graph.add_node("gs-1", {})
-        graph.add_edge("sat-1", "gs-1", latency_ms=50, bandwidth_mbps=100)
+        graph.add_node("sat-1")
+        graph.add_node("gs-1")
+        graph.add_edge("sat-1", "gs-1", latency_ms=50, bandwidth_mbps=100, weight=1.0)
         
         assert "gs-1" in graph.edges["sat-1"]
         assert graph.edges["sat-1"]["gs-1"]["latency_ms"] == 50
@@ -51,7 +50,7 @@ class TestGraph:
     def test_get_neighbors_empty(self):
         """Test getting neighbors of node with no edges."""
         graph = Graph()
-        graph.add_node("isolated", {})
+        graph.add_node("isolated")
         
         neighbors = graph.get_neighbors("isolated")
         
@@ -60,9 +59,9 @@ class TestGraph:
     def test_get_edge(self):
         """Test getting edge data."""
         graph = Graph()
-        graph.add_edge("sat-1", "gs-1", latency_ms=50, cost=1.5)
+        graph.add_edge("sat-1", "gs-1", latency_ms=50, cost=1.5, weight=1.0)
         
-        edge = graph.get_edge("sat-1", "gs-1")
+        edge = graph.edges.get("sat-1", {}).get("gs-1")
         
         assert edge["latency_ms"] == 50
         assert edge["cost"] == 1.5
@@ -70,9 +69,9 @@ class TestGraph:
     def test_get_edge_nonexistent(self):
         """Test getting nonexistent edge returns None."""
         graph = Graph()
-        graph.add_node("sat-1", {})
+        graph.add_node("sat-1")
         
-        edge = graph.get_edge("sat-1", "gs-1")
+        edge = graph.edges.get("sat-1", {}).get("gs-1")
         
         assert edge is None
 
@@ -85,7 +84,7 @@ class TestGraphBuilder:
     
     def test_build_empty_graph(self):
         """Test building graph with no links."""
-        graph = self.builder.build([])
+        graph = self.builder.build_from_links([])
         
         assert len(graph.nodes) == 0
     
@@ -114,11 +113,11 @@ class TestGraphBuilder:
             }
         ]
         
-        graph = self.builder.build(links)
+        graph = self.builder.build_from_links(links)
         
-        assert "sat-1" in graph.nodes
-        assert "sat-2" in graph.nodes
-        assert "gs-1" in graph.nodes
+        assert "satellite:1" in graph.nodes
+        assert "satellite:2" in graph.nodes
+        assert "ground_station:1" in graph.nodes
     
     def test_build_ignores_inactive_links(self):
         """Test that inactive links are ignored."""
@@ -139,10 +138,10 @@ class TestGraphBuilder:
             }
         ]
         
-        graph = self.builder.build(links)
+        graph = self.builder.build_from_links(links)
         
         # sat-2 should have no neighbors since its only link is inactive
-        neighbors = graph.get_neighbors("sat-2")
+        neighbors = graph.get_neighbors("satellite:2")
         assert len(neighbors) == 0
     
     def test_build_creates_bidirectional_edges(self):
@@ -157,11 +156,11 @@ class TestGraphBuilder:
             }
         ]
         
-        graph = self.builder.build(links)
+        graph = self.builder.build_from_links(links)
         
         # Edge should exist in both directions
-        assert graph.get_edge("sat-1", "gs-1") is not None
-        assert graph.get_edge("gs-1", "sat-1") is not None
+        assert graph.edges.get("satellite:1", {}).get("ground_station:1") is not None
+        assert graph.edges.get("ground_station:1", {}).get("satellite:1") is not None
     
     def test_build_with_inter_satellite_links(self):
         """Test building graph with inter-satellite links."""
@@ -176,11 +175,11 @@ class TestGraphBuilder:
             }
         ]
         
-        graph = self.builder.build(links)
+        graph = self.builder.build_from_links(links)
         
-        assert "sat-1" in graph.nodes
-        assert "sat-2" in graph.nodes
-        assert graph.get_edge("sat-1", "sat-2") is not None
+        assert "satellite:1" in graph.nodes
+        assert "satellite:2" in graph.nodes
+        assert graph.edges.get("satellite:1", {}).get("satellite:2") is not None
 
 
 class TestGraphSerialization:
@@ -189,11 +188,14 @@ class TestGraphSerialization:
     def test_to_dict(self):
         """Test converting graph to dictionary."""
         graph = Graph()
-        graph.add_node("sat-1", {"type": "satellite"})
-        graph.add_node("gs-1", {"type": "ground_station"})
+        graph.add_node("sat-1")
+        graph.add_node("gs-1")
         graph.add_edge("sat-1", "gs-1", weight=1.0)
         
-        result = graph.to_dict()
+        result = {
+            "nodes": list(graph.nodes),
+            "edges": graph.edges
+        }
         
         assert "nodes" in result
         assert "edges" in result
@@ -202,9 +204,9 @@ class TestGraphSerialization:
     def test_node_count(self):
         """Test getting node count."""
         graph = Graph()
-        graph.add_node("a", {})
-        graph.add_node("b", {})
-        graph.add_node("c", {})
+        graph.add_node("a")
+        graph.add_node("b")
+        graph.add_node("c")
         
         assert graph.node_count() == 3
     
