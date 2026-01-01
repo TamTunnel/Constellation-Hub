@@ -138,56 +138,33 @@ class TLEParser:
             raise ValueError("Line 2 checksum invalid")
     
     def _verify_checksum(self, line: str) -> bool:
-        """
-        Verify TLE line checksum.
-
-        Checksum algorithm:
-        - Sum all digits
-        - Minus signs count as 1
-        - All other non-digit characters count as 0
-        - Take modulo 10 of the sum
-        - Compare with the last character of the line
-        """
+        """Verify TLE line checksum."""
         checksum = 0
         for char in line[:-1]:
             if char.isdigit():
                 checksum += int(char)
             elif char == '-':
                 checksum += 1
-            # All other characters add 0
-
-        checksum %= 10
+        checksum = checksum % 10
         
         try:
-            expected = int(line[-1])
-            return checksum == expected
+            return checksum == int(line[-1])
         except ValueError:
             return False
     
     def _parse_exponential(self, value: str) -> float:
-        """
-        Parse TLE exponential format.
-
-        Format example: ' 12345-4' -> 0.12345 * 10^-4
-        The implied decimal point is before the first digit of the mantissa.
-        """
+        """Parse TLE exponential format (e.g., ' 12345-4' -> 0.12345e-4)."""
         value = value.strip()
         if not value or value == '00000-0':
             return 0.0
         
-        # Handle format like ' 12345-4' or '-12345-4' or ' 12345+4'
-        # The TLE spec says the sign of the exponent is always present (+ or -)
-        match = re.match(r'([+-]?)(\d+)([+-])(\d+)', value)
+        # Handle format like ' 12345-4' or '-12345-4'
+        match = re.match(r'([+-]?)(\d+)([+-])(\d)', value)
         if match:
             sign = -1 if match.group(1) == '-' else 1
-
-            # The mantissa is assumed to be 0.xxxxx
-            mantissa_str = match.group(2)
-            mantissa = float('0.' + mantissa_str)
-
+            mantissa = float('0.' + match.group(2))
             exp_sign = -1 if match.group(3) == '-' else 1
             exponent = int(match.group(4)) * exp_sign
-
             return sign * mantissa * (10 ** exponent)
         
         return 0.0

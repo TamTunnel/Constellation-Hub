@@ -100,11 +100,7 @@ class TestCoverageRadius:
             altitude_km=420, min_elevation_deg=10
         )
         
-        # ISS coverage radius at 10° elevation is roughly 1390 km
-        # Calculation:
-        # rho = asin(R/(R+h) * cos(E)) = asin(6371/6791 * cos(10)) = asin(0.9238) = 67.48 deg
-        # theta = 90 - E - rho = 90 - 10 - 67.48 = 12.52 deg
-        # radius = 12.52 * 111.19 km/deg = 1392 km
+        # ISS coverage radius at 10° elevation should be roughly 2000-2500 km
         assert 1300 < radius_km < 3000
     
     def test_radius_at_geo_altitude(self):

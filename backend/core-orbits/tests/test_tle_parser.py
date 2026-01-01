@@ -8,9 +8,8 @@ from app.services.tle_parser import TLEParser, parse_tle
 
 
 # Valid TLE for ISS (ZARYA)
-# Source: Historical ISS TLE
-VALID_TLE_LINE1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927"
-VALID_TLE_LINE2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537"
+VALID_TLE_LINE1 = "1 25544U 98067A   24001.50000000  .00016717  00000-0  10270-3 0  9021"
+VALID_TLE_LINE2 = "2 25544  51.6400 208.9163 0006703 280.7808  79.2154 15.49815776    29"
 
 
 class TestTLEParser:
@@ -28,7 +27,7 @@ class TestTLEParser:
         assert result['classification'] == 'U'
         assert result['inclination_deg'] == pytest.approx(51.64, rel=0.01)
         assert result['eccentricity'] == pytest.approx(0.0006703, rel=0.01)
-        assert result['mean_motion_rev_day'] == pytest.approx(15.721, rel=0.01)
+        assert result['mean_motion_rev_day'] == pytest.approx(15.498, rel=0.01)
     
     def test_parse_extracts_orbital_elements(self):
         """Test that all orbital elements are extracted."""
@@ -55,11 +54,9 @@ class TestTLEParser:
         """Test epoch is converted to datetime correctly."""
         result = self.parser.parse(VALID_TLE_LINE1, VALID_TLE_LINE2)
         
-        # Epoch 08264.51782528 -> Year 2008, Day 264
-        assert result['epoch'].year == 2008
-        # Day 264 in leap year 2008 is Sept 20
-        assert result['epoch'].month == 9
-        assert result['epoch'].day == 20
+        assert result['epoch'].year == 2024
+        assert result['epoch'].month == 1
+        assert result['epoch'].day == 1
     
     def test_invalid_line1_length(self):
         """Test that incorrect line 1 length raises error."""
@@ -122,7 +119,6 @@ class TestTLEParserExponential:
     
     def test_parse_negative_mantissa(self):
         """Test parsing negative mantissa values."""
-        # '-12345-4' = -0.12345e-4
         result = self.parser._parse_exponential("-12345-4")
         assert result == pytest.approx(-0.000012345, rel=0.01)
 
