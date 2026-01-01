@@ -3,7 +3,7 @@
  */
 import { useState, useCallback } from 'react';
 import { Play, Pause, SkipBack, SkipForward, FastForward, Clock } from 'lucide-react';
-import { format, addHours, subHours } from 'date-fns';
+import { format } from 'date-fns';
 
 interface TimeControlsProps {
     currentTime?: Date;
@@ -127,8 +127,8 @@ export default function TimeControls({
                     <button
                         onClick={onPlayPause}
                         className={`p-3 rounded-lg transition-all ${isPlaying
-                                ? 'bg-cosmic-500 text-white hover:bg-cosmic-400'
-                                : 'bg-space-700 text-white/60 hover:bg-space-600 hover:text-white'
+                            ? 'bg-cosmic-500 text-white hover:bg-cosmic-400'
+                            : 'bg-space-700 text-white/60 hover:bg-space-600 hover:text-white'
                             }`}
                         title={isPlaying ? 'Pause' : 'Play'}
                     >

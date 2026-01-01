@@ -8,31 +8,20 @@ import {
     Viewer,
     Cartesian3,
     Color,
-    Entity,
     Ion,
     ScreenSpaceEventHandler,
     ScreenSpaceEventType,
     defined,
-    JulianDate,
     ClockRange,
     ClockStep,
     OpenStreetMapImageryProvider,
-    createWorldTerrainAsync,
-    Cartographic,
-    Math as CesiumMath,
-    PointPrimitiveCollection,
-    LabelCollection,
     NearFarScalar,
     VerticalOrigin,
     HeightReference,
-    PolylineGlowMaterialProperty,
-    SampledPositionProperty,
-    VelocityOrientationProperty,
-    PathGraphics,
-    ModelGraphics,
 } from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import { Satellite, Radio, Layers, Eye, EyeOff, Play, Pause, RotateCcw } from 'lucide-react';
+
 
 // Disable Cesium Ion - we use open-source tiles
 Ion.defaultAccessToken = '';

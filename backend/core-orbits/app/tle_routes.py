@@ -7,16 +7,13 @@ from datetime import datetime, timezone
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, delete
+from sqlalchemy import select, func
 from pydantic import BaseModel
 
 from .db import get_db
 from .services.tle_ingestion import (
     TLEIngestionService, 
-    TLESource, 
-    TLERecord, 
     CelesTrakCatalog,
-    fetch_sample_satellites
 )
 
 # Try to import auth (optional)
@@ -83,7 +80,6 @@ class TLERefreshResponse(BaseModel):
 
 try:
     from sqlalchemy import Column, Integer, String, DateTime
-    from sqlalchemy.ext.declarative import declarative_base
     from .db import Base
     
     class TLERecordORM(Base):
