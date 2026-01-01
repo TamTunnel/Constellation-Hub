@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import {
     Viewer,
     Cartesian3,
+    Cartesian2,
     Color,
     Ion,
     ScreenSpaceEventHandler,
@@ -65,12 +66,12 @@ interface CesiumGlobeProps {
 export default function CesiumGlobe({
     satellites = [],
     groundStations = [],
-    orbitTracks,
+    orbitTracks: _orbitTracks,
     showCoverage = true,
     showOrbits = true,
     onSatelliteSelect,
-    onGroundStationSelect,
-    timeOffset = 0,
+    onGroundStationSelect: _onGroundStationSelect,
+    timeOffset: _timeOffset = 0,
     animationSpeed = 1,
 }: CesiumGlobeProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -90,6 +91,7 @@ export default function CesiumGlobe({
                 // Create viewer with OpenStreetMap imagery
                 const viewer = new Viewer(containerRef.current!, {
                     // Use OpenStreetMap instead of Cesium Ion
+                    // @ts-ignore - Cesium types issue
                     imageryProvider: new OpenStreetMapImageryProvider({
                         url: 'https://tile.openstreetmap.org/',
                     }),
@@ -235,7 +237,7 @@ export default function CesiumGlobe({
 
         // Handle click events
         const handler = new ScreenSpaceEventHandler(viewer.scene.canvas);
-        handler.setInputAction((click: { position: Cartesian3 }) => {
+        handler.setInputAction((click: { position: Cartesian2 }) => {
             const pickedObject = viewer.scene.pick(click.position);
             if (defined(pickedObject) && pickedObject.id) {
                 const entity = pickedObject.id;
