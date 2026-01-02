@@ -1,5 +1,52 @@
 # Use Cases
 
+## Demo Scenario
+
+**Goal**: See Constellation Hub in action in 2 minutes without manual setup.
+
+When you run `make demo`, you get a fully populated system with:
+
+- **6 Demo Satellites**: ISS + 5 Starlink satellites with realistic TLEs
+- **3 Ground Stations**: Located in US (San Francisco), Europe (Netherlands), and Asia (Tokyo)
+- **Pre-computed Data**: Sample passes, schedules, and data queues already loaded
+- **3 Demo Users**: One for each role (viewer, operator, admin)
+
+**What You Can Explore**:
+
+1. **3D Globe View** (`/`)
+   - See all 6 satellites visualized on the Earth
+   - View ground station locations with coverage circles
+   - Watch satellite positions update in real-time
+
+2. **Satellite List** (`/satellites`)
+   - Browse the demo constellation
+   - View orbital parameters and TLE data
+   - Check satellite status and metrics
+
+3. **Ground Stations** (`/ground-stations`)
+   - See all three stations and their capabilities
+   - View antenna configurations
+   - Check operational status
+
+4. **Pass Scheduling** (`/scheduling`)
+   - View pre-computed passes for the next 24 hours
+   - See when each satellite will be visible from each station
+   - Explore schedule optimization options
+
+5. **TLE Admin** (`/tle-admin`)
+   - Check TLE ingestion status
+   - View the 6 satellites in the TLE database
+   - Trigger manual TLE refresh (operator+ role required)
+
+**Try Different Roles**:
+- Log in as `demo_viewer` to see read-only access
+- Log in as `demo_ops` to test operator capabilities (schedule management, TLE refresh)
+- Log in as `demo_admin` to explore full system access
+
+This demo provides a realistic, interactive showcase without requiring any satellite operations expertise or manual data entry.
+
+---
+
 ## Use Case 1: Plan Passes for an IoT Constellation
 
 **Scenario**: You operate a 20-satellite IoT constellation and need to plan downlink passes for the next 24 hours.

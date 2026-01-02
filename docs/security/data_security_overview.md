@@ -65,15 +65,27 @@ For production deployments, the following security measures should be implemente
 
 ### Role-Based Access Control (RBAC)
 
-Constellation Hub supports role-based permissions:
+Constellation Hub implements three-tier RBAC:
 
-| Role | Permissions |
-|------|-------------|
-| **Viewer** | Read-only access to dashboards and schedules |
-| **Operator** | Execute schedules, respond to events |
-| **Planner** | Create and modify schedules, run optimization |
-| **Administrator** | Manage users, configure system settings |
-| **Security Officer** | Access audit logs, manage security policies |
+| Role | Permissions | Typical Users |
+|------|-------------|---------------|
+| **Viewer** | Read-only access to all data, dashboards, and schedules | Analysts, management, stakeholders |
+| **Operator** | Can execute schedules, trigger TLE refresh, run AI optimizations, approve AI actions | Satellite operators, mission control |
+| **Admin** | Full system access including user and ground station management | System administrators, senior operators |
+
+**Key RBAC Features**:
+- JWT-based authentication with bcrypt password hashing
+- API key support for service-to-service authentication
+- Frontend conditional rendering based on user role
+- Backend endpoint protection via FastAPI dependencies
+- All privileged actions (operator+) logged for audit trails
+
+**AI Action Restrictions**:
+- AI optimization requests: open to all authenticated users
+- AI-generated action execution ("apply"): requires **operator role or higher**
+- This ensures human-in-the-loop approval for all AI recommendations
+
+[See full permission matrix →](roles_and_permissions.md)
 
 ### Logging and Audit Trails
 

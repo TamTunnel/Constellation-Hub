@@ -101,6 +101,76 @@ We believe the industry benefits from open standards and shared tooling, and we 
 
 ---
 
+## Quick Demo
+
+**See Constellation Hub in action in 2 minutes:**
+
+```bash
+# Clone the repository
+git clone https://github.com/TamTunnel/Constellation-Hub.git
+cd constellation-hub
+
+# Start services and load demo data
+docker compose up -d
+make demo
+
+# Visit the dashboard
+open http://localhost:3000
+```
+
+**Demo includes:**
+- ✅ 6 sample satellites with realistic orbits
+- ✅ 3 ground stations (US, Europe, Asia)
+- ✅ Pre-computed passes and schedules
+- ✅ Demo users for each role (viewer, operator, admin)
+
+[See demo credentials and details →](docs/ops/local_dev.md#demo-setup)
+
+---
+
+## Current Limitations (MVP)
+
+Constellation Hub is an early-stage, production-ready MVP. Please be aware of these limitations:
+
+> [!NOTE]
+> **Single-Tenant Focus**  
+> Not designed yet for hard multi-tenant isolation. Suitable for single-tenant or trusted environments only.
+
+> [!NOTE]
+> **AI is Assistive, Not Autonomous**  
+> AI agents propose actions; **human operators must approve** before execution. AI does not take autonomous actions.
+
+> [!WARNING]
+> **Not Certified for Classified Environments**  
+> Not yet hardened or certified for classified/high-security government use. Any such deployment would require additional security controls and review.
+
+> [!NOTE]
+> **Simulation Not Implemented**  
+> Tier 3 feature. Current focus is live operations logic and visualization, not constellation design simulation.
+
+[Read full limitations documentation →](docs/product/limitations.md)
+
+---
+
+## Roles & Permissions
+
+Constellation Hub implements role-based access control (RBAC) with three roles:
+
+| Role | Permissions | Demo User |
+|------|-------------|-----------|
+| **Viewer** | Read-only access to data and visualizations | `demo_viewer` / `viewer123` |
+| **Operator** | Can generate schedules, optimize routes, trigger TLE refresh | `demo_ops` / `operator123` |
+| **Admin** | Full system access including user management | `demo_admin` / `admin123` |
+
+**Key Restrictions:**
+- AI "apply" actions require `operator` role or higher
+- User management requires `admin` role
+- All demo credentials are for **local/demo use only**
+
+[See full permission matrix →](docs/security/roles_and_permissions.md)
+
+---
+
 ## Architecture Overview
 
 Constellation Hub is built as a set of cooperating microservices:
