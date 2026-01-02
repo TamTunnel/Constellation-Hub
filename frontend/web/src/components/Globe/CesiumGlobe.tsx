@@ -149,7 +149,6 @@ export default function CesiumGlobe({
                 viewerRef.current = null;
             }
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [animationSpeed]);
 
     // Update animation speed
