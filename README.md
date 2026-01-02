@@ -4,6 +4,9 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![CI](https://github.com/TamTunnel/Constellation-Hub/actions/workflows/ci-backend.yml/badge.svg)](https://github.com/TamTunnel/Constellation-Hub/actions)
+[![CI - Frontend](https://github.com/TamTunnel/Constellation-Hub/actions/workflows/ci-frontend.yml/badge.svg)](https://github.com/TamTunnel/Constellation-Hub/actions/workflows/ci-frontend.yml)
+[![Docker Build](https://github.com/TamTunnel/Constellation-Hub/actions/workflows/docker-build.yml/badge.svg)](https://github.com/TamTunnel/Constellation-Hub/actions/workflows/docker-build.yml)
+[![Deploy to Dev](https://github.com/TamTunnel/Constellation-Hub/actions/workflows/deploy-dev.yml/badge.svg)](https://github.com/TamTunnel/Constellation-Hub/actions/workflows/deploy-dev.yml)
 
 ---
 
