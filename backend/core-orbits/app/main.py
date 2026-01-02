@@ -94,14 +94,6 @@ except ImportError as e:
 # Mount auth routes
 try:
     from common.auth_routes import router as auth_router
-    # Create a new router that includes the DB dependency
-    from fastapi import APIRouter, Depends
-    from sqlalchemy.ext.asyncio import AsyncSession
-    
-    mounted_auth_router = APIRouter()
-    
-    # We need to wrap auth routes to inject DB dependency
-    # This is done in the route handlers themselves
     app.include_router(auth_router)
 except ImportError:
     logger.warning("Auth routes not available - running without auth endpoints")

@@ -6,8 +6,6 @@ Supports:
 - CelesTrak (free, no auth required)
 - Space-Track (requires credentials, for future implementation)
 """
-import asyncio
-import re
 from datetime import datetime, timezone
 from enum import Enum
 from typing import List, Dict, Optional, Any
