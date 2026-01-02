@@ -34,3 +34,6 @@ export const api = {
 };
 
 export { coreOrbitsApi, routingApi, schedulerApi, aiAgentsApi };
+
+// Alias for backward compatibility
+export const coreOrbitsClient = coreOrbitsApi;

@@ -91,7 +91,7 @@ export default function CesiumGlobe({
                 // Create viewer with OpenStreetMap imagery
                 const viewer = new Viewer(containerRef.current!, {
                     // Use OpenStreetMap instead of Cesium Ion
-                    // @ts-ignore - Cesium types issue
+                    // @ts-expect-error - Cesium types issue with imageryProvider
                     imageryProvider: new OpenStreetMapImageryProvider({
                         url: 'https://tile.openstreetmap.org/',
                     }),
@@ -149,7 +149,8 @@ export default function CesiumGlobe({
                 viewerRef.current = null;
             }
         };
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [animationSpeed]);
 
     // Update animation speed
     useEffect(() => {
