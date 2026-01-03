@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 sys.path.insert(0, str(__file__).replace('/core-orbits/app/main.py', ''))
 
 from .routes import router
+from .demo_routes import router as demo_router
 from .db import init_db, get_db
 
 # Import from common module
@@ -82,6 +83,7 @@ app.include_router(health_router)
 
 # Include main routes
 app.include_router(router)
+app.include_router(demo_router)
 
 # Include TLE routes
 try:

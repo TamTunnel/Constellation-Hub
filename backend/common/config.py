@@ -26,7 +26,10 @@ class Settings(BaseSettings):
     auth_disabled: bool = False  # Set True for local dev without auth
     jwt_secret_key: str = "change-me-in-production-use-a-real-secret-key"
     jwt_algorithm: str = "HS256"
-    jwt_expire_minutes: int = 60
+    jwt_expire_minutes: int = 60 * 24  # 24 hours
+    
+    # Demo Mode
+    demo_mode: bool = True
     admin_api_key: str = ""  # Optional API key for service-to-service calls
     
     # AI/LLM
