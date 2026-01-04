@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { InternalAxiosRequestConfig } from "axios";
 
 const coreOrbitsApi = axios.create({
   baseURL: import.meta.env.VITE_CORE_ORBITS_URL || "http://localhost:8001",
@@ -17,7 +17,7 @@ const aiAgentsApi = axios.create({
 });
 
 // Add auth token to requests
-const addAuthToken = (config: any) => {
+const addAuthToken = (config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

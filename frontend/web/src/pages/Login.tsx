@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
+import { AxiosError } from "axios";
 import {
   Rocket,
   Shield,
@@ -43,9 +44,10 @@ export default function Login() {
       );
 
       navigate("/");
-    } catch (err: any) {
-      console.error(err);
-      setError(err.response?.data?.detail || "Login failed");
+    } catch (err) {
+      const error = err as AxiosError<{ detail: string }>;
+      console.error(error);
+      setError(error.response?.data?.detail || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -75,8 +77,9 @@ export default function Login() {
     try {
       await api.seedDemo();
       setSuccess("Demo data initialized successfully!");
-    } catch (err: any) {
-      console.error(err);
+    } catch (err) {
+      const error = err as AxiosError<{ detail: string }>;
+      console.error(error);
       setError("Failed to seed demo data. Is the backend running?");
     } finally {
       setSeedLoading(false);
