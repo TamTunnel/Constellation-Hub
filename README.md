@@ -128,6 +128,8 @@ open http://localhost:3000
 
 [See demo credentials and details →](docs/ops/local_dev.md#demo-setup)
 
+> **Production Deployment?** See the [Deployment Guide](docs/ops/deployment.md) for environment variables and Coolify/Docker configuration.
+
 ---
 
 ## Current Limitations (MVP)
