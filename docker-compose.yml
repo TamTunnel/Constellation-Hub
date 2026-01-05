@@ -113,14 +113,14 @@ services:
     build:
       context: ./frontend/web
       dockerfile: Dockerfile
+      args:
+        VITE_CORE_ORBITS_URL: ${VITE_CORE_ORBITS_URL:-http://localhost:8001}
+        VITE_ROUTING_URL: ${VITE_ROUTING_URL:-http://localhost:8002}
+        VITE_GROUND_SCHEDULER_URL: ${VITE_GROUND_SCHEDULER_URL:-http://localhost:8003}
+        VITE_AI_AGENTS_URL: ${VITE_AI_AGENTS_URL:-http://localhost:8004}
     container_name: constellation-frontend
     ports:
       - "3000:80"
-    environment:
-      VITE_CORE_ORBITS_URL: ${VITE_CORE_ORBITS_URL:-http://localhost:8001}
-      VITE_ROUTING_URL: ${VITE_ROUTING_URL:-http://localhost:8002}
-      VITE_GROUND_SCHEDULER_URL: ${VITE_GROUND_SCHEDULER_URL:-http://localhost:8003}
-      VITE_AI_AGENTS_URL: ${VITE_AI_AGENTS_URL:-http://localhost:8004}
     depends_on:
       - core-orbits
       - routing
