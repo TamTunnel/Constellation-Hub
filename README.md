@@ -11,10 +11,11 @@
 ---
 
 ## One-line summary (Tagline)
+
 Open‑source satellite constellation “brain” for fleet visualization, pass scheduling, data routing, and AI‑assisted operations.
 
 - Simple analogy:
-Think of Constellation Hub as an air‑traffic control system and network router combined, but for satellites instead of airplanes. It gives operators one place to see every satellite, plan when they talk to the ground, and let AI suggest smarter ways to move data across the fleet
+  Think of Constellation Hub as an air‑traffic control system and network router combined, but for satellites instead of airplanes. It gives operators one place to see every satellite, plan when they talk to the ground, and let AI suggest smarter ways to move data across the fleet
 
 ## The Problem
 
@@ -50,12 +51,12 @@ Think of it as a single dashboard where you can:
 
 **What makes Constellation Hub different:**
 
-| | Traditional Tools | Constellation Hub |
-|---|---|---|
-| **Open Source** | ❌ Proprietary | ✅ Apache 2.0, fully open |
-| **Vendor Neutral** | ❌ Locked to one vendor | ✅ Works with any ground network |
-| **AI-Native** | ❌ Bolt-on analytics | ✅ AI agents built-in from day one |
-| **Modern Stack** | ❌ Legacy architectures | ✅ Cloud-native, API-first, containerized |
+|                    | Traditional Tools       | Constellation Hub                         |
+| ------------------ | ----------------------- | ----------------------------------------- |
+| **Open Source**    | ❌ Proprietary          | ✅ Apache 2.0, fully open                 |
+| **Vendor Neutral** | ❌ Locked to one vendor | ✅ Works with any ground network          |
+| **AI-Native**      | ❌ Bolt-on analytics    | ✅ AI agents built-in from day one        |
+| **Modern Stack**   | ❌ Legacy architectures | ✅ Cloud-native, API-first, containerized |
 
 ---
 
@@ -91,13 +92,13 @@ We believe the industry benefits from open standards and shared tooling, and we 
 
 ## Who Is This For?
 
-| Audience | How They Benefit |
-|----------|------------------|
-| **New-Space Startups** | Get to orbit faster with ready-to-use ops tooling |
-| **Commercial Constellation Operators** | Scale operations without scaling headcount |
-| **Government & Defense Integrators** | Open-source foundation for mission-specific solutions |
-| **Research & Academic Missions** | No licensing fees, full transparency, community support |
-| **Ground Network Providers** | Offer value-added services on top of an open platform |
+| Audience                               | How They Benefit                                        |
+| -------------------------------------- | ------------------------------------------------------- |
+| **New-Space Startups**                 | Get to orbit faster with ready-to-use ops tooling       |
+| **Commercial Constellation Operators** | Scale operations without scaling headcount              |
+| **Government & Defense Integrators**   | Open-source foundation for mission-specific solutions   |
+| **Research & Academic Missions**       | No licensing fees, full transparency, community support |
+| **Ground Network Providers**           | Offer value-added services on top of an open platform   |
 
 ---
 
@@ -119,6 +120,7 @@ open http://localhost:3000
 ```
 
 **Demo includes:**
+
 - ✅ 6 sample satellites with realistic orbits
 - ✅ 3 ground stations (US, Europe, Asia)
 - ✅ Pre-computed passes and schedules
@@ -156,13 +158,14 @@ Constellation Hub is an early-stage, production-ready MVP. Please be aware of th
 
 Constellation Hub implements role-based access control (RBAC) with three roles:
 
-| Role | Permissions | Demo User |
-|------|-------------|-----------|
-| **Viewer** | Read-only access to data and visualizations | `demo_viewer` / `viewer123` |
-| **Operator** | Can generate schedules, optimize routes, trigger TLE refresh | `demo_ops` / `operator123` |
-| **Admin** | Full system access including user management | `demo_admin` / `admin123` |
+| Role         | Permissions                                                  | Demo User                   |
+| ------------ | ------------------------------------------------------------ | --------------------------- |
+| **Viewer**   | Read-only access to data and visualizations                  | `demo_viewer` / `viewer123` |
+| **Operator** | Can generate schedules, optimize routes, trigger TLE refresh | `demo_ops` / `operator123`  |
+| **Admin**    | Full system access including user management                 | `demo_admin` / `admin123`   |
 
 **Key Restrictions:**
+
 - AI "apply" actions require `operator` role or higher
 - User management requires `admin` role
 - All demo credentials are for **local/demo use only**
@@ -193,52 +196,29 @@ Constellation Hub is built as a set of cooperating microservices:
                     PostgreSQL Database
 ```
 
-| Service | What It Does |
-|---------|--------------|
-| **Orbit Engine** | Computes satellite positions and ground coverage from orbital data |
-| **Routing Service** | Finds optimal paths for data flow through the constellation |
-| **Ground Scheduler** | Manages ground stations and generates pass schedules |
-| **AI Agents** | Provides intelligent schedule optimization and operational assistance |
+| Service              | What It Does                                                          |
+| -------------------- | --------------------------------------------------------------------- |
+| **Orbit Engine**     | Computes satellite positions and ground coverage from orbital data    |
+| **Routing Service**  | Finds optimal paths for data flow through the constellation           |
+| **Ground Scheduler** | Manages ground stations and generates pass schedules                  |
+| **AI Agents**        | Provides intelligent schedule optimization and operational assistance |
 
 ### Production Features
 
-| Feature | Description |
-|---------|-------------|
-| **JWT Authentication** | Role-based access control (viewer, operator, admin) |
-| **API Key Support** | Service-to-service authentication |
-| **Prometheus Metrics** | Request count, latency, error tracking at `/metrics` |
-| **Structured Logging** | JSON-formatted logs with request ID tracing |
-| **Health Probes** | Kubernetes-compatible `/healthz` and `/readyz` endpoints |
-| **Database Migrations** | Alembic for schema versioning |
-| **TLE Ingestion** | Automated satellite data from CelesTrak |
-| **3D Globe** | CesiumJS visualization with OpenStreetMap tiles |
+| Feature                 | Description                                              |
+| ----------------------- | -------------------------------------------------------- |
+| **JWT Authentication**  | Role-based access control (viewer, operator, admin)      |
+| **API Key Support**     | Service-to-service authentication                        |
+| **Prometheus Metrics**  | Request count, latency, error tracking at `/metrics`     |
+| **Structured Logging**  | JSON-formatted logs with request ID tracing              |
+| **Health Probes**       | Kubernetes-compatible `/healthz` and `/readyz` endpoints |
+| **Database Migrations** | Alembic for schema versioning                            |
+| **TLE Ingestion**       | Automated satellite data from CelesTrak                  |
+| **3D Globe**            | CesiumJS visualization with OpenStreetMap tiles          |
 
 ---
 
-
-## Quickstart
-
-### Prerequisites
-
-- Docker and Docker Compose
-- Git
-
-### Run the Demo
-
-```bash
-# Clone the repository
-git clone https://github.com/TamTunnel/Constellation-Hub.git
-cd constellation-hub
-
-# Start all services
-cd infra/docker
-docker-compose up -d
-
-# Access the dashboard
-open http://localhost:3000
-```
-
-### Explore the APIs
+## API Documentation
 
 Each service exposes interactive API documentation:
 
@@ -251,20 +231,19 @@ Each service exposes interactive API documentation:
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [Architecture Overview](docs/architecture/overview.md) | System design and component relationships |
-| [System Description](docs/architecture/system_description.md) | Detailed technical architecture |
-| [Concept of Operations](docs/product/conops.md) | Typical missions, roles, and workflows |
-| [API Reference](docs/api/backend.md) | REST API endpoints and examples |
-| [Local Development](docs/ops/local_dev.md) | Setting up a dev environment |
-| [Observability Guide](docs/ops/observability.md) | Logging, metrics, and health probes |
-| [TLE Feeds](docs/product/tle_feeds.md) | Satellite TLE data ingestion |
-| [CI/CD Guide](docs/ops/ci_cd.md) | Build and deployment pipelines |
-| [Security Overview](docs/security/data_security_overview.md) | Data handling and protection |
-| [Compliance Guide](docs/security/compliance_and_assurance.md) | Regulatory alignment roadmap |
-| [AI Governance](docs/product/ai_risk_and_governance.md) | AI safety and oversight practices |
-
+| Document                                                      | Description                               |
+| ------------------------------------------------------------- | ----------------------------------------- |
+| [Architecture Overview](docs/architecture/overview.md)        | System design and component relationships |
+| [System Description](docs/architecture/system_description.md) | Detailed technical architecture           |
+| [Concept of Operations](docs/product/conops.md)               | Typical missions, roles, and workflows    |
+| [API Reference](docs/api/backend.md)                          | REST API endpoints and examples           |
+| [Local Development](docs/ops/local_dev.md)                    | Setting up a dev environment              |
+| [Observability Guide](docs/ops/observability.md)              | Logging, metrics, and health probes       |
+| [TLE Feeds](docs/product/tle_feeds.md)                        | Satellite TLE data ingestion              |
+| [CI/CD Guide](docs/ops/ci_cd.md)                              | Build and deployment pipelines            |
+| [Security Overview](docs/security/data_security_overview.md)  | Data handling and protection              |
+| [Compliance Guide](docs/security/compliance_and_assurance.md) | Regulatory alignment roadmap              |
+| [AI Governance](docs/product/ai_risk_and_governance.md)       | AI safety and oversight practices         |
 
 ---
 
@@ -292,4 +271,4 @@ Constellation Hub is released under the [Apache 2.0 License](LICENSE).
 
 ---
 
-*Constellation Hub is a community-driven project. We're building the foundation for the next generation of satellite operations—together.*
+_Constellation Hub is a community-driven project. We're building the foundation for the next generation of satellite operations—together._
