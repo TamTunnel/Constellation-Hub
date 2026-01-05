@@ -9,8 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY core-orbits/requirements.txt ./requirements.txt
+COPY common/requirements.txt ./common-requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt -r common-requirements.txt
 
 # Production stage
 FROM python:3.11-slim
@@ -21,12 +22,16 @@ WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
+# Copy common module first
+COPY common/ ./common/
+
 # Copy application code
-COPY app/ ./app/
+COPY core-orbits/app/ ./app/
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONPATH=/app
 
 # Expose port
 EXPOSE 8001
