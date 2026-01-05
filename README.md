@@ -241,6 +241,7 @@ Each service exposes interactive API documentation:
 | [Observability Guide](docs/ops/observability.md)              | Logging, metrics, and health probes       |
 | [TLE Feeds](docs/product/tle_feeds.md)                        | Satellite TLE data ingestion              |
 | [CI/CD Guide](docs/ops/ci_cd.md)                              | Build and deployment pipelines            |
+| [Deployment Guide](docs/ops/deployment.md)                    | Production deployment and configuration   |
 | [Security Overview](docs/security/data_security_overview.md)  | Data handling and protection              |
 | [Compliance Guide](docs/security/compliance_and_assurance.md) | Regulatory alignment roadmap              |
 | [AI Governance](docs/product/ai_risk_and_governance.md)       | AI safety and oversight practices         |
