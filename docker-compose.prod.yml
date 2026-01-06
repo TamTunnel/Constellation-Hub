@@ -1,0 +1,108 @@
+# Docker Compose for Coolify/Production Deployment
+# Uses pre-built images from GHCR instead of building locally
+#
+# Images are automatically published on push to main:
+# https://github.com/TamTunnel/Constellation-Hub/pkgs/container/constellation-hub
+#
+# Usage in Coolify:
+#   1. Set Docker Compose Location to: /docker-compose.prod.yml
+#   2. Configure environment variables (see docs/ops/deployment.md)
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: constellation-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-constellation}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-constellation}
+      POSTGRES_DB: ${POSTGRES_DB:-constellation_hub}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U constellation -d constellation_hub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: constellation-redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Core Orbits Service
+  core-orbits:
+    image: ghcr.io/tamtunnel/constellation-hub/core-orbits:${IMAGE_TAG:-latest}
+    container_name: constellation-core-orbits
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-constellation}:${POSTGRES_PASSWORD:-constellation}@postgres:5432/${POSTGRES_DB:-constellation_hub}
+      DATABASE_URL_ASYNC: postgresql+asyncpg://${POSTGRES_USER:-constellation}:${POSTGRES_PASSWORD:-constellation}@postgres:5432/${POSTGRES_DB:-constellation_hub}
+      REDIS_URL: redis://redis:6379
+      DEBUG: ${DEBUG:-false}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-in-production}
+      DEMO_MODE: ${DEMO_MODE:-true}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Routing Service
+  routing:
+    image: ghcr.io/tamtunnel/constellation-hub/routing:${IMAGE_TAG:-latest}
+    container_name: constellation-routing
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-constellation}:${POSTGRES_PASSWORD:-constellation}@postgres:5432/${POSTGRES_DB:-constellation_hub}
+      REDIS_URL: redis://redis:6379
+      DEBUG: ${DEBUG:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Ground Scheduler Service
+  ground-scheduler:
+    image: ghcr.io/tamtunnel/constellation-hub/ground-scheduler:${IMAGE_TAG:-latest}
+    container_name: constellation-ground-scheduler
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-constellation}:${POSTGRES_PASSWORD:-constellation}@postgres:5432/${POSTGRES_DB:-constellation_hub}
+      REDIS_URL: redis://redis:6379
+      CORE_ORBITS_URL: http://core-orbits:8001
+      DEBUG: ${DEBUG:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      core-orbits:
+        condition: service_started
+    restart: unless-stopped
+
+  # AI Agents Service
+  ai-agents:
+    image: ghcr.io/tamtunnel/constellation-hub/ai-agents:${IMAGE_TAG:-latest}
+    container_name: constellation-ai-agents
+    environment:
+      GROUND_SCHEDULER_URL: http://ground-scheduler:8003
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      SCHEDULER_STRATEGY: ${SCHEDULER_STRATEGY:-heuristic}
+      DEBUG: ${DEBUG:-false}
+    depends_on:
+      - ground-scheduler
+    restart: unless-stopped
+
+  # Frontend (pre-built with default URLs, configure via reverse proxy)
+  frontend:
+    image: ghcr.io/tamtunnel/constellation-hub/frontend:${IMAGE_TAG:-latest}
+    container_name: constellation-frontend
+    depends_on:
+      - core-orbits
+      - routing
+      - ground-scheduler
+      - ai-agents
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

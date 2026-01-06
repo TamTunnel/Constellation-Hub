@@ -37,24 +37,38 @@ Configure these variables in your deployment environment (e.g., `.env` file or C
 | `VITE_GROUND_SCHEDULER_URL` | `http://localhost:8003` | Public URL of Scheduler API   |
 | `VITE_AI_AGENTS_URL`        | `http://localhost:8004` | Public URL of AI Agents API   |
 
-### Coolify Deployment
+### Coolify Deployment (Recommended)
+
+Use pre-built images from GitHub Container Registry for faster, more reliable deployments.
 
 1. **Source**: Connect your GitHub repository.
 2. **Configuration**:
    - **Base Directory**: `/`
-   - **Docker Compose Location**: `/docker-compose.yml`
+   - **Docker Compose Location**: `/docker-compose.prod.yml`
 3. **Environment Variables**:
-   - Add all variables listed above in the **Environment Variables** section.
-   - Ensure `VITE_*_URL` variables are set to your actual public domains:
-     ```
-     VITE_CORE_ORBITS_URL=https://coreorbits.yourapp.com
-     VITE_ROUTING_URL=https://routing.yourapp.com
-     VITE_GROUND_SCHEDULER_URL=https://scheduler.yourapp.com
-     VITE_AI_AGENTS_URL=https://aiagents.yourapp.com
-     JWT_SECRET_KEY=your-secure-random-secret
-     DEMO_MODE=false
-     ```
-4. **Deploy**: Click Deploy. The `docker-compose.yml` will build all services.
+   ```
+   JWT_SECRET_KEY=your-secure-random-secret
+   DEMO_MODE=true
+   IMAGE_TAG=latest
+   ```
+4. **Deploy**: Click Deploy. Images will be pulled from GHCR (no build needed).
+
+> **Note**: Images are automatically published to GHCR on every push to `main`. See [published packages](https://github.com/orgs/TamTunnel/packages?repo_name=Constellation-Hub).
+
+### Coolify Deployment (Build from Source)
+
+If you need to build from source (e.g., with custom modifications):
+
+1. **Docker Compose Location**: `/docker-compose.yml`
+2. **Environment Variables**: Add `VITE_*_URL` for your domains:
+   ```
+   VITE_CORE_ORBITS_URL=https://coreorbits.yourapp.com
+   VITE_ROUTING_URL=https://routing.yourapp.com
+   VITE_GROUND_SCHEDULER_URL=https://scheduler.yourapp.com
+   VITE_AI_AGENTS_URL=https://aiagents.yourapp.com
+   JWT_SECRET_KEY=your-secure-random-secret
+   ```
+3. **Deploy**: This will build all services (may take 10-20 minutes).
 
 ### Local Development
 
