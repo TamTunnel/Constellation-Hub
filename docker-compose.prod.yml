@@ -7,6 +7,9 @@
 # Usage in Coolify:
 #   1. Set Docker Compose Location to: /docker-compose.prod.yml
 #   2. Configure environment variables (see docs/ops/deployment.md)
+#
+# Port mappings are included for compatibility with both Coolify (Traefik)
+# and standalone Docker deployments.
 
 services:
   # PostgreSQL Database
@@ -17,28 +20,37 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-constellation}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-constellation}
       POSTGRES_DB: ${POSTGRES_DB:-constellation_hub}
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U constellation -d constellation_hub"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-constellation} -d ${POSTGRES_DB:-constellation_hub}"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
 
   # Redis Cache
   redis:
     image: redis:7-alpine
     container_name: constellation-redis
+    ports:
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+    restart: unless-stopped
 
   # Core Orbits Service
   core-orbits:
     image: ghcr.io/tamtunnel/constellation-hub/core-orbits:${IMAGE_TAG:-latest}
     container_name: constellation-core-orbits
+    ports:
+      - "8001:8001"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-constellation}:${POSTGRES_PASSWORD:-constellation}@postgres:5432/${POSTGRES_DB:-constellation_hub}
       DATABASE_URL_ASYNC: postgresql+asyncpg://${POSTGRES_USER:-constellation}:${POSTGRES_PASSWORD:-constellation}@postgres:5432/${POSTGRES_DB:-constellation_hub}
@@ -49,12 +61,22 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   # Routing Service
   routing:
     image: ghcr.io/tamtunnel/constellation-hub/routing:${IMAGE_TAG:-latest}
     container_name: constellation-routing
+    ports:
+      - "8002:8002"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-constellation}:${POSTGRES_PASSWORD:-constellation}@postgres:5432/${POSTGRES_DB:-constellation_hub}
       REDIS_URL: redis://redis:6379
@@ -62,12 +84,22 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   # Ground Scheduler Service
   ground-scheduler:
     image: ghcr.io/tamtunnel/constellation-hub/ground-scheduler:${IMAGE_TAG:-latest}
     container_name: constellation-ground-scheduler
+    ports:
+      - "8003:8003"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-constellation}:${POSTGRES_PASSWORD:-constellation}@postgres:5432/${POSTGRES_DB:-constellation_hub}
       REDIS_URL: redis://redis:6379
@@ -76,32 +108,61 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       core-orbits:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   # AI Agents Service
   ai-agents:
     image: ghcr.io/tamtunnel/constellation-hub/ai-agents:${IMAGE_TAG:-latest}
     container_name: constellation-ai-agents
+    ports:
+      - "8004:8004"
     environment:
       GROUND_SCHEDULER_URL: http://ground-scheduler:8003
       LLM_PROVIDER: ${LLM_PROVIDER:-mock}
       SCHEDULER_STRATEGY: ${SCHEDULER_STRATEGY:-heuristic}
       DEBUG: ${DEBUG:-false}
     depends_on:
-      - ground-scheduler
+      ground-scheduler:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8004/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
-  # Frontend (pre-built with default URLs, configure via reverse proxy)
+  # Frontend
   frontend:
     image: ghcr.io/tamtunnel/constellation-hub/frontend:${IMAGE_TAG:-latest}
     container_name: constellation-frontend
+    ports:
+      - "3000:80"
     depends_on:
-      - core-orbits
-      - routing
-      - ground-scheduler
-      - ai-agents
+      core-orbits:
+        condition: service_healthy
+      routing:
+        condition: service_healthy
+      ground-scheduler:
+        condition: service_healthy
+      ai-agents:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
 volumes:
