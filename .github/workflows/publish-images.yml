@@ -8,8 +8,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository_owner }}/constellation-hub
-
 jobs:
   build-and-push:
     name: Build & Push All Images
@@ -21,6 +19,11 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Lowercase Image Prefix
+        run: |
+          echo "IMAGE_PREFIX=${GITHUB_REPOSITORY_OWNER,,}/constellation-hub" >> $GITHUB_ENV
+
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
