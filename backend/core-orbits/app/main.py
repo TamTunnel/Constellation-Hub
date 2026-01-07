@@ -8,8 +8,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-# Add common module to path
-sys.path.insert(0, str(__file__).replace('/core-orbits/app/main.py', ''))
+# Add common module to path (fallback for local run, handled by PYTHONPATH in Docker)
+try:
+    import common
+except ImportError:
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from .routes import router
 from .demo_routes import router as demo_router
