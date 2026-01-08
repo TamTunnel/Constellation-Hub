@@ -7,15 +7,11 @@
 # Usage in Coolify:
 #   1. Set Docker Compose Location to: /docker-compose.prod.yml
 #   2. Configure environment variables (see docs/ops/deployment.md)
-#
-# Port mappings are included for compatibility with both Coolify (Traefik)
-# and standalone Docker deployments.
 
 services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: constellation-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-constellation}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-constellation}
@@ -35,7 +31,6 @@ services:
   # Redis Cache
   redis:
     image: redis:7-alpine
-    container_name: constellation-redis
     ports:
       - "6379:6379"
     healthcheck:
@@ -48,7 +43,6 @@ services:
   # Core Orbits Service
   core-orbits:
     image: ghcr.io/tamtunnel/constellation-hub/core-orbits:${IMAGE_TAG:-latest}
-    container_name: constellation-core-orbits
     ports:
       - "8001:8001"
     environment:
@@ -59,22 +53,13 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-in-production}
       DEMO_MODE: ${DEMO_MODE:-true}
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1', 8001), timeout=2)"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      - postgres
+      - redis
     restart: unless-stopped
 
   # Routing Service
   routing:
     image: ghcr.io/tamtunnel/constellation-hub/routing:${IMAGE_TAG:-latest}
-    container_name: constellation-routing
     ports:
       - "8002:8002"
     environment:
@@ -82,22 +67,13 @@ services:
       REDIS_URL: redis://redis:6379
       DEBUG: ${DEBUG:-false}
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1', 8002), timeout=2)"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      - postgres
+      - redis
     restart: unless-stopped
 
   # Ground Scheduler Service
   ground-scheduler:
     image: ghcr.io/tamtunnel/constellation-hub/ground-scheduler:${IMAGE_TAG:-latest}
-    container_name: constellation-ground-scheduler
     ports:
       - "8003:8003"
     environment:
@@ -106,24 +82,14 @@ services:
       CORE_ORBITS_URL: http://core-orbits:8001
       DEBUG: ${DEBUG:-false}
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      core-orbits:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1', 8003), timeout=2)"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      - postgres
+      - redis
+      - core-orbits
     restart: unless-stopped
 
   # AI Agents Service
   ai-agents:
     image: ghcr.io/tamtunnel/constellation-hub/ai-agents:${IMAGE_TAG:-latest}
-    container_name: constellation-ai-agents
     ports:
       - "8004:8004"
     environment:
@@ -132,37 +98,19 @@ services:
       SCHEDULER_STRATEGY: ${SCHEDULER_STRATEGY:-heuristic}
       DEBUG: ${DEBUG:-false}
     depends_on:
-      ground-scheduler:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1', 8004), timeout=2)"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      - ground-scheduler
     restart: unless-stopped
 
   # Frontend
   frontend:
     image: ghcr.io/tamtunnel/constellation-hub/frontend:${IMAGE_TAG:-latest}
-    container_name: constellation-frontend
     ports:
       - "3000:80"
     depends_on:
-      core-orbits:
-        condition: service_healthy
-      routing:
-        condition: service_healthy
-      ground-scheduler:
-        condition: service_healthy
-      ai-agents:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+      - core-orbits
+      - routing
+      - ground-scheduler
+      - ai-agents
     restart: unless-stopped
 
 volumes:
